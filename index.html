@@ -435,16 +435,75 @@ const LATEST = {
   gen: { score: 2.54, reviews: 66153,  vs01: -0.02 },
 };
 
-const CC_REGIONS = [
-  { name_el: 'ΑΤΤΙΚΗ',                        name_en: 'Attica',                          score: 3.85 },
-  { name_el: 'Κεντρική Ελλάδα',               name_en: 'Central Greece',                  score: 4.22 },
-  { name_el: 'Θεσσαλονίκη',                   name_en: 'Thessaloniki',                    score: 4.10 },
-  { name_el: 'Βόρεια Ελλάδα',                 name_en: 'Northern Greece',                 score: 4.18 },
-  { name_el: 'Δυτική Ελλάδα (με Κέρκυρα)',    name_en: 'Western Greece (incl. Corfu)',    score: 4.15 },
-  { name_el: 'Πελοπόννησος',                  name_en: 'Peloponnese',                     score: 4.35 },
-  { name_el: 'ΚΡΗΤΗ',                         name_en: 'Crete',                           score: 4.12 },
-  { name_el: 'Υπόλοιπα νησιά',                name_en: 'Other Islands',                   score: 3.82 },
-];
+const REGION_NAMES = {
+  'ΑΤΤΙΚΗ':                      { en: 'Attica' },
+  'Κεντρική Ελλάδα':             { en: 'Central Greece' },
+  'Θεσσαλονίκη':                 { en: 'Thessaloniki' },
+  'Βόρεια Ελλάδα':               { en: 'Northern Greece' },
+  'Δυτική Ελλάδα (με Κέρκυρα)': { en: 'Western Greece (incl. Corfu)' },
+  'Πελοπόννησος':                { en: 'Peloponnese' },
+  'ΚΡΗΤΗ':                       { en: 'Crete' },
+  'Υπόλοιπα νησιά':              { en: 'Other Islands' },
+};
+
+const REGION_DATA = {
+  'ΑΤΤΙΚΗ': {
+    'Courier Center':     { score: 3.85, reviews: 21741 },
+    'ACS':                { score: 3.03, reviews: 62675 },
+    'SPEEDEX':            { score: 2.39, reviews: 17027 },
+    'ΕΛΤΑ Courier':       { score: 2.50, reviews: 17022 },
+    'Γενική Ταχυδρομική': { score: 2.17, reviews: 25175 },
+  },
+  'Κεντρική Ελλάδα': {
+    'Courier Center':     { score: 4.22, reviews: 5705  },
+    'ACS':                { score: 3.69, reviews: 16284 },
+    'ΕΛΤΑ Courier':       { score: 3.12, reviews: 4659  },
+    'SPEEDEX':            { score: 3.09, reviews: 4521  },
+    'Γενική Ταχυδρομική': { score: 2.94, reviews: 5734  },
+  },
+  'Θεσσαλονίκη': {
+    'Courier Center':     { score: 3.88, reviews: 3623  },
+    'ACS':                { score: 3.34, reviews: 23177 },
+    'ΕΛΤΑ Courier':       { score: 3.31, reviews: 8431  },
+    'SPEEDEX':            { score: 2.85, reviews: 7169  },
+    'Γενική Ταχυδρομική': { score: 3.07, reviews: 7298  },
+  },
+  'Βόρεια Ελλάδα': {
+    'Courier Center':     { score: 4.42, reviews: 4998  },
+    'ACS':                { score: 4.07, reviews: 21406 },
+    'SPEEDEX':            { score: 3.39, reviews: 5042  },
+    'ΕΛΤΑ Courier':       { score: 3.31, reviews: 5672  },
+    'Γενική Ταχυδρομική': { score: 3.08, reviews: 6946  },
+  },
+  'Δυτική Ελλάδα (με Κέρκυρα)': {
+    'Courier Center':     { score: 4.34, reviews: 3873  },
+    'ACS':                { score: 3.73, reviews: 10045 },
+    'SPEEDEX':            { score: 3.74, reviews: 1116  },
+    'ΕΛΤΑ Courier':       { score: 2.50, reviews: 4128  },
+    'Γενική Ταχυδρομική': { score: 2.41, reviews: 4476  },
+  },
+  'Πελοπόννησος': {
+    'Courier Center':     { score: 4.29, reviews: 2463  },
+    'ACS':                { score: 3.74, reviews: 13140 },
+    'SPEEDEX':            { score: 3.29, reviews: 1748  },
+    'Γενική Ταχυδρομική': { score: 2.60, reviews: 5080  },
+    'ΕΛΤΑ Courier':       { score: 2.39, reviews: 5306  },
+  },
+  'ΚΡΗΤΗ': {
+    'Courier Center':     { score: 3.75, reviews: 3554  },
+    'ACS':                { score: 3.72, reviews: 13652 },
+    'ΕΛΤΑ Courier':       { score: 2.58, reviews: 3983  },
+    'SPEEDEX':            { score: 2.33, reviews: 4085  },
+    'Γενική Ταχυδρομική': { score: 2.09, reviews: 6127  },
+  },
+  'Υπόλοιπα νησιά': {
+    'Courier Center':     { score: 3.82, reviews: 2194  },
+    'ACS':                { score: 3.23, reviews: 16520 },
+    'SPEEDEX':            { score: 3.20, reviews: 2970  },
+    'Γενική Ταχυδρομική': { score: 3.02, reviews: 5317  },
+    'ΕΛΤΑ Courier':       { score: 2.86, reviews: 3384  },
+  },
+};
 
 // ── i18n ──────────────────────────────────────────────────────────────
 const T = {
@@ -597,15 +656,41 @@ function toggleBrand(id) {
 // ── REGIONS ───────────────────────────────────────────────────────────
 function renderRegions() {
   const t = T[lang];
-  const sorted = [...CC_REGIONS].sort((a, b) => b.score - a.score);
-  document.getElementById('regions-grid').innerHTML = sorted.map((r, i) => `
-    <div class="region-card">
-      <div class="region-name">${r[t.regionNameKey]}</div>
-      <div class="region-score">${r.score.toFixed(2)}</div>
-      <div class="region-label">${stars(r.score)}</div>
-      <div class="region-rank">${t.regionRankLabel(i + 1)}</div>
-    </div>
-  `).join('');
+  const BRAND_COLORS_MAP = {
+    'Courier Center': '#F47920', 'ACS': '#CC0000', 'SPEEDEX': '#00A650',
+    'ΕΛΤΑ Courier': '#C8102E', 'Γενική Ταχυδρομική': '#003DA5',
+  };
+  const BRAND_LOGOS_MAP = {
+    'Courier Center': 'logos/courier_center.png', 'ACS': 'logos/acs.png',
+    'SPEEDEX': 'logos/speedex.png', 'ΕΛΤΑ Courier': 'logos/elta_courier.png',
+    'Γενική Ταχυδρομική': 'logos/geniki.png',
+  };
+  const REGION_ORDER = ['ΑΤΤΙΚΗ','Κεντρική Ελλάδα','Θεσσαλονίκη','Βόρεια Ελλάδα',
+    'Δυτική Ελλάδα (με Κέρκυρα)','Πελοπόννησος','ΚΡΗΤΗ','Υπόλοιπα νησιά'];
+
+  document.getElementById('regions-grid').innerHTML = REGION_ORDER.map(regionKey => {
+    const regionName = lang === 'en' ? REGION_NAMES[regionKey].en : regionKey;
+    const brands = REGION_DATA[regionKey];
+    const sorted = Object.entries(brands).sort((a,b) => b[1].score - a[1].score);
+    const rows = sorted.map(([brand, d], i) => {
+      const isCC = brand === 'Courier Center';
+      const reviewsTxt = t.reviewsLabel(d.reviews);
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:${i < sorted.length-1 ? '1px solid var(--border)' : 'none'}">
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:${i===0?'var(--cc-orange)':'var(--border)'};min-width:22px;text-align:center">${i+1}</div>
+        <img src="${BRAND_LOGOS_MAP[brand]}" style="height:22px;width:60px;object-fit:contain;flex-shrink:0" alt="${brand}">
+        <div style="flex:1">
+          <div style="font-size:${isCC?'15px':'13px'};font-weight:${isCC?'700':'400'};color:${isCC?'var(--cc-orange)':'var(--text-primary)'}">${d.score.toFixed(2)}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${reviewsTxt}</div>
+        </div>
+        ${isCC ? '<div style="font-size:11px;font-weight:600;color:var(--cc-orange);white-space:nowrap">✓ #1</div>' : ''}
+      </div>`;
+    }).join('');
+
+    return `<div class="region-card">
+      <div class="region-name">${regionName}</div>
+      ${rows}
+    </div>`;
+  }).join('');
 }
 
 // ── i18n APPLY ────────────────────────────────────────────────────────
