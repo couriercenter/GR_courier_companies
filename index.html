@@ -282,7 +282,7 @@ footer a { color: var(--cc-orange); text-decoration: none; }
 
 <!-- NAV -->
 <nav>
-  <div class="nav-brand">COURIER <span>CENTER</span></div>
+  <img src="logos/courier_center.png" alt="Courier Center" style="height:32px;object-fit:contain">
   <div class="lang-toggle">
     <button class="lang-btn active" onclick="setLang('el')">ΕΛ</button>
     <button class="lang-btn" onclick="setLang('en')">EN</button>
@@ -403,8 +403,10 @@ footer a { color: var(--cc-orange); text-decoration: none; }
 
 <!-- FOOTER -->
 <footer>
-  <span data-i18n="footerLeft">Δεδομένα από Google Places API · Ενημερώθηκε: 09/05/2026</span>
-  <a href="https://couriercenter.github.io/courier-ratings/" target="_blank" data-i18n="footerLink">Αναλυτικά δεδομένα ↗</a>
+  <span>
+    <span data-i18n="footerLeft">Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:</span>
+    <a href="https://github.com/couriercenter/courier-ratings/blob/main/courier_ratings.py" target="_blank">github.com/couriercenter/courier-ratings/courier_ratings.py</a>
+  </span>
 </footer>
 
 <script>
@@ -526,8 +528,7 @@ const T = {
     meth2h: 'Αυτόματη ενημέρωση', meth2p: 'Ανανέωση κάθε Κυριακή μέσω Google Places API. Χωρίς επεξεργασία ή φιλτράρισμα.',
     meth3h: 'Πλήρης διαφάνεια', meth3p: 'Ο κώδικας είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία.',
     meth4h: 'Πανελλαδική κάλυψη', meth4p: 'Όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτικά, νησιά, Κρήτη.',
-    footerLeft: 'Δεδομένα από Google Places API · Ενημερώθηκε: 09/05/2026',
-    footerLink: 'Αναλυτικά δεδομένα ↗',
+    footerLeft: 'Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:',
     vsLabel: (d) => d > 0 ? `+${d.toFixed(2)} από 01/01` : `${d.toFixed(2)} από 01/01`,
     regionNameKey: 'name_el',
   },
@@ -550,8 +551,7 @@ const T = {
     meth2h: 'Automatic updates', meth2p: 'Refreshed every Sunday via Google Places API. No processing or filtering of results.',
     meth3h: 'Full transparency', meth3p: 'The data collection code is publicly available. Anyone can verify the methodology and results.',
     meth4h: 'Nationwide coverage', meth4p: 'All branches across Greece — mainland, islands, and Crete.',
-    footerLeft: 'Data from Google Places API · Updated: 09/05/2026',
-    footerLink: 'Detailed data ↗',
+    footerLeft: 'Data is sourced automatically from the Google Places API and is not processed or filtered. The data collection script is publicly available:',
     regionNameKey: 'name_en',
   },
 };
