@@ -127,25 +127,31 @@ footer a{color:var(--cc);text-decoration:none}
         <button onclick="closeDetail()" style="padding:6px 16px;border-radius:100px;border:1px solid var(--border);background:var(--card);font-size:13px;cursor:pointer" data-i18n="detailClose">✕ Κλείσιμο</button>
       </div>
       <div style="padding:24px clamp(16px,4vw,48px)">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
-          <select id="d-brand" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--card)" onchange="renderDetail()">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center">
+          <select id="d-brand" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--card)" onchange="detailPage=1;renderDetail()">
             <option value="" data-i18n="allBrands">Όλες οι εταιρίες</option>
           </select>
-          <select id="d-region" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--card)" onchange="renderDetail()">
+          <select id="d-region" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--card)" onchange="detailPage=1;renderDetail()">
             <option value="" data-i18n="allRegions">Όλες οι περιοχές</option>
           </select>
-          <input id="d-search" placeholder="Αναζήτηση…" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;flex:1;min-width:150px" oninput="renderDetail()">
+          <input id="d-search" placeholder="Αναζήτηση…" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;flex:1;min-width:150px" oninput="detailPage=1;renderDetail()">
+          <select id="d-pagesize" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);min-width:70px" onchange="detailPage=1;renderDetail()">
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="999999" id="d-pagesize-all">Όλα</option>
+          </select>
         </div>
-        <div style="background:var(--card);border-radius:12px;overflow:auto;box-shadow:var(--shadow)">
+        <div style="background:var(--card);border-radius:12px;box-shadow:var(--shadow)">
           <table style="width:100%;border-collapse:collapse;font-size:13px" id="detail-table">
             <thead>
               <tr id="detail-thead" style="background:var(--dark);color:#fff">
-                <th style="padding:10px 14px;text-align:left;position:sticky;top:0;background:var(--dark);white-space:nowrap" data-i18n="thCompany">Εταιρία</th>
-                <th style="padding:10px 14px;text-align:left;position:sticky;top:0;background:var(--dark);white-space:nowrap" data-i18n="thRegionCol">Περιοχή</th>
-                <th style="padding:10px 14px;text-align:left;position:sticky;top:0;background:var(--dark);white-space:nowrap" data-i18n="thAddress">Διεύθυνση</th>
-                <th style="padding:10px 14px;text-align:right;position:sticky;top:0;background:var(--dark);white-space:nowrap">Rating</th>
-                <th style="padding:10px 14px;text-align:right;position:sticky;top:0;background:var(--dark);white-space:nowrap" data-i18n="thReviews">Κριτικές</th>
-                <th style="padding:10px 14px;text-align:center;position:sticky;top:0;background:var(--dark)"></th>
+                <th style="padding:10px 14px;text-align:left;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thCompany">Εταιρία</th>
+                <th style="padding:10px 14px;text-align:left;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thRegionCol">Περιοχή</th>
+                <th style="padding:10px 14px;text-align:left;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thAddress">Διεύθυνση</th>
+                <th style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5">Rating</th>
+                <th style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thReviews">Κριτικές</th>
+                <th style="padding:10px 14px;text-align:center;position:sticky;top:57px;background:var(--dark);z-index:5"></th>
               </tr>
             </thead>
             <tbody id="detail-tbody"></tbody>
@@ -219,8 +225,8 @@ const REGION_ORDER = ['ΑΤΤΙΚΗ','Κεντρική Ελλάδα','Θεσσα
 const REGION_EN = {'ΑΤΤΙΚΗ':'Attica','Κεντρική Ελλάδα':'Central Greece','Θεσσαλονίκη':'Thessaloniki','Βόρεια Ελλάδα':'Northern Greece','Δυτική Ελλάδα (με Κέρκυρα)':'Western Greece (incl. Corfu)','Πελοπόννησος':'Peloponnese','ΚΡΗΤΗ':'Crete','Υπόλοιπα νησιά':'Other Islands'};
 
 const T = {
-  el:{rankTag:'Κατάταξη',rankTitle:'Σύγκριση αγοράς — Weighted Average Rating',rankSub:'Βασισμένη στον αριθμό κριτικών κάθε καταστήματος · Δεδομένα:',trendTag:'Τάση',trendTitle:'Εξέλιξη Weighted Average — 2026',trendSub:'Επίλεξε εταιρίες για σύγκριση',regionTag:'Ανά περιοχή',regionTitle:'Αποτελέσματα ανά περιοχή',regionSub:'Κατάταξη όλων των εταιριών σε κάθε γεωγραφική περιοχή',methTitle:'Πώς υπολογίζεται η αξιολόγηση',meth1h:'Weighted Average',meth1p:'Τα καταστήματα με περισσότερες κριτικές έχουν μεγαλύτερο βάρος. Αποφεύγει στρεβλώσεις από μικρά σημεία.',meth2h:'Αυτόματη ενημέρωση',meth2p:'Ανανέωση κάθε Κυριακή μέσω Google Places API. Χωρίς επεξεργασία ή φιλτράρισμα.',meth3h:'Πλήρης διαφάνεια',meth3p:'Ο κώδικας είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία.',meth4h:'Πανελλαδική κάλυψη',meth4p:'Όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτικά, νησιά, Κρήτη.',footerText:'Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:',updated:'Τελευταία ενημέρωση:',reviews:n=>n.toLocaleString('el-GR')+' κριτικές',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' από 01/01',rname:r=>r,detailBtn:'Αναλυτικά αποτελέσματα ανά κατάστημα →',detailTitle:'Αναλυτικά αποτελέσματα ανά κατάστημα',detailClose:'✕ Κλείσιμο',allBrands:'Όλες οι εταιρίες',allRegions:'Όλες οι περιοχές',thCompany:'Εταιρία',thRegionCol:'Περιοχή',thAddress:'Διεύθυνση',thReviews:'Κριτικές'},
-  en:{rankTag:'Rankings',rankTitle:'Market comparison — Weighted Average Rating',rankSub:'Weighted by number of reviews per branch · Data:',trendTag:'Trend',trendTitle:'Weighted Average Trend — 2026',trendSub:'Select companies to compare',regionTag:'By region',regionTitle:'Results by region',regionSub:'Ranking of all companies in each geographic region',methTitle:'How the rating is calculated',meth1h:'Weighted Average',meth1p:'Branches with more reviews carry greater weight. Prevents distortion from small locations.',meth2h:'Automatic updates',meth2p:'Refreshed every Sunday via Google Places API. No processing or filtering.',meth3h:'Full transparency',meth3p:'The code is publicly available. Anyone can verify the methodology.',meth4h:'Nationwide coverage',meth4p:'All branches across Greece — mainland, islands, and Crete.',footerText:'Data is sourced automatically from the Google Places API and is not processed or filtered. The data collection script is publicly available:',updated:'Last updated:',reviews:n=>n.toLocaleString('en-US')+' reviews',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' since 01/01',rname:r=>REGION_EN[r]||r,detailBtn:'Detailed results by branch →',detailTitle:'Detailed results by branch',detailClose:'✕ Close',allBrands:'All companies',allRegions:'All regions',thCompany:'Company',thRegionCol:'Region',thAddress:'Address',thReviews:'Reviews'},
+  el:{rankTag:'Κατάταξη',rankTitle:'Σύγκριση αγοράς — Weighted Average Rating',rankSub:'Βασισμένη στον αριθμό κριτικών κάθε καταστήματος · Δεδομένα:',trendTag:'Τάση',trendTitle:'Εξέλιξη Weighted Average — 2026',trendSub:'Επίλεξε εταιρίες για σύγκριση',regionTag:'Ανά περιοχή',regionTitle:'Αποτελέσματα ανά περιοχή',regionSub:'Κατάταξη όλων των εταιριών σε κάθε γεωγραφική περιοχή',methTitle:'Πώς υπολογίζεται η αξιολόγηση',meth1h:'Weighted Average',meth1p:'Τα καταστήματα με περισσότερες κριτικές έχουν μεγαλύτερο βάρος. Αποφεύγει στρεβλώσεις από μικρά σημεία.',meth2h:'Αυτόματη ενημέρωση',meth2p:'Ανανέωση κάθε Κυριακή μέσω Google Places API. Χωρίς επεξεργασία ή φιλτράρισμα.',meth3h:'Πλήρης διαφάνεια',meth3p:'Ο κώδικας είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία.',meth4h:'Πανελλαδική κάλυψη',meth4p:'Όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτικά, νησιά, Κρήτη.',footerText:'Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:',updated:'Τελευταία ενημέρωση:',reviews:n=>n.toLocaleString('el-GR')+' κριτικές',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' από 01/01',rname:r=>r,detailBtn:'Αναλυτικά αποτελέσματα ανά κατάστημα →',detailTitle:'Αναλυτικά αποτελέσματα ανά κατάστημα',detailClose:'✕ Επιστροφή',allBrands:'Όλες οι εταιρίες',allRegions:'Όλες οι περιοχές',allOpt:'Όλα',thCompany:'Εταιρία',thRegionCol:'Περιοχή',thAddress:'Διεύθυνση',thReviews:'Κριτικές'},
+  en:{rankTag:'Rankings',rankTitle:'Market comparison — Weighted Average Rating',rankSub:'Weighted by number of reviews per branch · Data:',trendTag:'Trend',trendTitle:'Weighted Average Trend — 2026',trendSub:'Select companies to compare',regionTag:'By region',regionTitle:'Results by region',regionSub:'Ranking of all companies in each geographic region',methTitle:'How the rating is calculated',meth1h:'Weighted Average',meth1p:'Branches with more reviews carry greater weight. Prevents distortion from small locations.',meth2h:'Automatic updates',meth2p:'Refreshed every Sunday via Google Places API. No processing or filtering.',meth3h:'Full transparency',meth3p:'The code is publicly available. Anyone can verify the methodology.',meth4h:'Nationwide coverage',meth4p:'All branches across Greece — mainland, islands, and Crete.',footerText:'Data is sourced automatically from the Google Places API and is not processed or filtered. The data collection script is publicly available:',updated:'Last updated:',reviews:n=>n.toLocaleString('en-US')+' reviews',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' since 01/01',rname:r=>REGION_EN[r]||r,detailBtn:'Detailed results by branch →',detailTitle:'Detailed results by branch',detailClose:'✕ Back',allBrands:'All companies',allRegions:'All regions',allOpt:'All',thCompany:'Company',thRegionCol:'Region',thAddress:'Address',thReviews:'Reviews'},
 };
 
 let lang='el', SNAPSHOTS=[], LATEST={}, REGION_DATA={}, LATEST_LABEL='';
@@ -269,6 +275,7 @@ function applyLang(l){
   document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(typeof t[k]==='string')el.textContent=t[k];});
   document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.textContent===(l==='el'?'ΕΛ':'EN')));
   document.getElementById('nav-updated').textContent=t.updated+' '+LATEST_LABEL;
+  const allOpt=document.getElementById('d-pagesize-all');if(allOpt)allOpt.textContent=t.allOpt||'Όλα';
   renderRanking();renderRegions();renderChartFilters();
 }
 function setLang(l){applyLang(l);}
@@ -333,6 +340,7 @@ function renderDetail() {
   const bFilter = document.getElementById('d-brand').value;
   const rFilter = document.getElementById('d-region').value;
   const sFilter = document.getElementById('d-search').value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const pageSize = parseInt(document.getElementById('d-pagesize').value);
   
   let rows = (window._PLACES || []).filter(p => {
     if(bFilter && p.brand !== bFilter) return false;
@@ -346,9 +354,9 @@ function renderDetail() {
   rows.sort((a,b) => b.reviews - a.reviews);
 
   const total = rows.length;
-  const totalPages = Math.ceil(total / DETAIL_PAGE_SIZE);
+  const totalPages = pageSize >= 999999 ? 1 : Math.ceil(total / pageSize);
   if(detailPage > totalPages) detailPage = 1;
-  const pageRows = rows.slice((detailPage-1)*DETAIL_PAGE_SIZE, detailPage*DETAIL_PAGE_SIZE);
+  const pageRows = rows.slice((detailPage-1)*pageSize, pageSize >= 999999 ? undefined : detailPage*pageSize);
 
   const ratingColor = r => r >= 4 ? '#059669' : r >= 3.5 ? '#065f46' : r >= 3 ? '#d97706' : '#dc2626';
   const ratingBg = r => r >= 4 ? '#d1fae5' : r >= 3.5 ? '#d1fae5' : r >= 3 ? '#fef3c7' : '#fee2e2';
@@ -384,7 +392,11 @@ function renderDetail() {
   }
 }
 
-function detailGoPage(p) { detailPage = p; renderDetail(); }
+function detailGoPage(p) {
+  detailPage = p;
+  renderDetail();
+  document.getElementById('detail-modal').scrollTo({top:0, behavior:'smooth'});
+}
 </script>
 </body>
 </html>
