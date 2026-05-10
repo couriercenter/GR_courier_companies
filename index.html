@@ -110,6 +110,52 @@ footer a{color:var(--cc);text-decoration:none}
     </div>
   </section>
 
+  <!-- DETAIL LINK -->
+  <section style="padding:0 0 48px">
+    <div class="container" style="text-align:center">
+      <button onclick="openDetail()" style="padding:12px 28px;border-radius:100px;border:1.5px solid var(--cc);background:transparent;color:var(--cc);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background='var(--cc)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--cc)'" id="detail-btn">
+        <span data-i18n="detailBtn">Αναλυτικά αποτελέσματα ανά κατάστημα →</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- DETAIL MODAL -->
+  <div id="detail-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);overflow-y:auto">
+    <div style="background:var(--bg);min-height:100vh;max-width:1080px;margin:0 auto;padding:0 0 48px">
+      <div style="position:sticky;top:0;background:rgba(248,247,244,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;z-index:10">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px" data-i18n="detailTitle">Αναλυτικά αποτελέσματα ανά κατάστημα</span>
+        <button onclick="closeDetail()" style="padding:6px 16px;border-radius:100px;border:1px solid var(--border);background:var(--card);font-size:13px;cursor:pointer" data-i18n="detailClose">✕ Κλείσιμο</button>
+      </div>
+      <div style="padding:24px clamp(16px,4vw,48px)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+          <select id="d-brand" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--card)" onchange="renderDetail()">
+            <option value="" data-i18n="allBrands">Όλες οι εταιρίες</option>
+          </select>
+          <select id="d-region" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--card)" onchange="renderDetail()">
+            <option value="" data-i18n="allRegions">Όλες οι περιοχές</option>
+          </select>
+          <input id="d-search" placeholder="Αναζήτηση…" style="padding:6px 10px;border:.5px solid var(--border);border-radius:8px;font-size:13px;flex:1;min-width:150px" oninput="renderDetail()">
+        </div>
+        <div style="background:var(--card);border-radius:12px;overflow:auto;box-shadow:var(--shadow)">
+          <table style="width:100%;border-collapse:collapse;font-size:13px" id="detail-table">
+            <thead>
+              <tr id="detail-thead" style="background:var(--dark);color:#fff">
+                <th style="padding:10px 14px;text-align:left;position:sticky;top:0;background:var(--dark);white-space:nowrap" data-i18n="thCompany">Εταιρία</th>
+                <th style="padding:10px 14px;text-align:left;position:sticky;top:0;background:var(--dark);white-space:nowrap" data-i18n="thRegionCol">Περιοχή</th>
+                <th style="padding:10px 14px;text-align:left;position:sticky;top:0;background:var(--dark);white-space:nowrap" data-i18n="thAddress">Διεύθυνση</th>
+                <th style="padding:10px 14px;text-align:right;position:sticky;top:0;background:var(--dark);white-space:nowrap">Rating</th>
+                <th style="padding:10px 14px;text-align:right;position:sticky;top:0;background:var(--dark);white-space:nowrap" data-i18n="thReviews">Κριτικές</th>
+                <th style="padding:10px 14px;text-align:center;position:sticky;top:0;background:var(--dark)"></th>
+              </tr>
+            </thead>
+            <tbody id="detail-tbody"></tbody>
+          </table>
+        </div>
+        <div id="detail-pagination" style="display:flex;align-items:center;gap:6px;margin-top:12px;font-size:13px;color:var(--muted)"></div>
+      </div>
+    </div>
+  </div>
+
   <section>
     <div class="container">
       <div class="method-box">
@@ -141,6 +187,27 @@ footer a{color:var(--cc);text-decoration:none}
 </footer>
 
 <script>
+function detectRegion(lat,lng){
+  if(!lat||!lng) return 'Κεντρική Ελλάδα';
+  if(lat>=34.7&&lat<=35.9&&lng>=23.3&&lng<=26.7) return 'ΚΡΗΤΗ';
+  if(lat>=35.8&&lat<=37.0&&lng>=26.8&&lng<=29.7) return 'Υπόλοιπα νησιά';
+  if(lat>=36.3&&lat<=37.9&&lng>=24.3&&lng<=26.5) return 'Υπόλοιπα νησιά';
+  if(lat>=37.4&&lat<=38.7&&lng>=25.8&&lng<=27.2) return 'Υπόλοιπα νησιά';
+  if(lat>=38.8&&lat<=40.8&&lng>=25.0&&lng<=26.5) return 'Υπόλοιπα νησιά';
+  if(lat>=37.1&&lat<=37.9&&lng>=23.0&&lng<=23.6) return 'Υπόλοιπα νησιά';
+  if(lat>=37.5&&lat<=38.9&&lng>=20.3&&lng<=21.1) return 'Υπόλοιπα νησιά';
+  if(lat>=39.3&&lat<=39.9&&lng>=19.5&&lng<=20.3) return 'Δυτική Ελλάδα (με Κέρκυρα)';
+  if(lat>=37.7&&lat<=38.25&&lng>=23.2&&lng<=24.2) return 'ΑΤΤΙΚΗ';
+  if(lat>=40.4&&lat<=40.85&&lng>=22.6&&lng<=23.3) return 'Θεσσαλονίκη';
+  if(lat>=40.0) return 'Βόρεια Ελλάδα';
+  if(lat>=37.9&&lat<=38.35&&lng>=21.6&&lng<=22.3) return 'Πελοπόννησος';
+  if(lat>=38.2&&lat<=38.65&&lng>=21.0&&lng<=21.9) return 'Δυτική Ελλάδα (με Κέρκυρα)';
+  if(lat>=38.3&&lat<=39.9&&lng>=21.5&&lng<=24.5) return 'Κεντρική Ελλάδα';
+  if(lat<=38.1&&lng>=21.5&&lng<=23.2) return 'Πελοπόννησος';
+  if(lng<=22.5&&lat<=40.0) return 'Δυτική Ελλάδα (με Κέρκυρα)';
+  return 'Κεντρική Ελλάδα';
+}
+
 const BRANDS5 = [
   { id:'Courier Center',     color:'#F47920', logo:'logos/courier_center.png' },
   { id:'ACS',                color:'#CC0000', logo:'logos/acs.png' },
@@ -152,8 +219,8 @@ const REGION_ORDER = ['ΑΤΤΙΚΗ','Κεντρική Ελλάδα','Θεσσα
 const REGION_EN = {'ΑΤΤΙΚΗ':'Attica','Κεντρική Ελλάδα':'Central Greece','Θεσσαλονίκη':'Thessaloniki','Βόρεια Ελλάδα':'Northern Greece','Δυτική Ελλάδα (με Κέρκυρα)':'Western Greece (incl. Corfu)','Πελοπόννησος':'Peloponnese','ΚΡΗΤΗ':'Crete','Υπόλοιπα νησιά':'Other Islands'};
 
 const T = {
-  el:{rankTag:'Κατάταξη',rankTitle:'Σύγκριση αγοράς — Weighted Average Rating',rankSub:'Βασισμένη στον αριθμό κριτικών κάθε καταστήματος · Δεδομένα:',trendTag:'Τάση',trendTitle:'Εξέλιξη Weighted Average — 2026',trendSub:'Επίλεξε εταιρίες για σύγκριση',regionTag:'Ανά περιοχή',regionTitle:'Αποτελέσματα ανά περιοχή',regionSub:'Κατάταξη όλων των εταιριών σε κάθε γεωγραφική περιοχή',methTitle:'Πώς υπολογίζεται η αξιολόγηση',meth1h:'Weighted Average',meth1p:'Τα καταστήματα με περισσότερες κριτικές έχουν μεγαλύτερο βάρος. Αποφεύγει στρεβλώσεις από μικρά σημεία.',meth2h:'Αυτόματη ενημέρωση',meth2p:'Ανανέωση κάθε Κυριακή μέσω Google Places API. Χωρίς επεξεργασία ή φιλτράρισμα.',meth3h:'Πλήρης διαφάνεια',meth3p:'Ο κώδικας είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία.',meth4h:'Πανελλαδική κάλυψη',meth4p:'Όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτικά, νησιά, Κρήτη.',footerText:'Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:',updated:'Τελευταία ενημέρωση:',reviews:n=>n.toLocaleString('el-GR')+' κριτικές',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' από 01/01',rname:r=>r},
-  en:{rankTag:'Rankings',rankTitle:'Market comparison — Weighted Average Rating',rankSub:'Weighted by number of reviews per branch · Data:',trendTag:'Trend',trendTitle:'Weighted Average Trend — 2026',trendSub:'Select companies to compare',regionTag:'By region',regionTitle:'Results by region',regionSub:'Ranking of all companies in each geographic region',methTitle:'How the rating is calculated',meth1h:'Weighted Average',meth1p:'Branches with more reviews carry greater weight. Prevents distortion from small locations.',meth2h:'Automatic updates',meth2p:'Refreshed every Sunday via Google Places API. No processing or filtering.',meth3h:'Full transparency',meth3p:'The code is publicly available. Anyone can verify the methodology.',meth4h:'Nationwide coverage',meth4p:'All branches across Greece — mainland, islands, and Crete.',footerText:'Data is sourced automatically from the Google Places API and is not processed or filtered. The data collection script is publicly available:',updated:'Last updated:',reviews:n=>n.toLocaleString('en-US')+' reviews',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' since 01/01',rname:r=>REGION_EN[r]||r},
+  el:{rankTag:'Κατάταξη',rankTitle:'Σύγκριση αγοράς — Weighted Average Rating',rankSub:'Βασισμένη στον αριθμό κριτικών κάθε καταστήματος · Δεδομένα:',trendTag:'Τάση',trendTitle:'Εξέλιξη Weighted Average — 2026',trendSub:'Επίλεξε εταιρίες για σύγκριση',regionTag:'Ανά περιοχή',regionTitle:'Αποτελέσματα ανά περιοχή',regionSub:'Κατάταξη όλων των εταιριών σε κάθε γεωγραφική περιοχή',methTitle:'Πώς υπολογίζεται η αξιολόγηση',meth1h:'Weighted Average',meth1p:'Τα καταστήματα με περισσότερες κριτικές έχουν μεγαλύτερο βάρος. Αποφεύγει στρεβλώσεις από μικρά σημεία.',meth2h:'Αυτόματη ενημέρωση',meth2p:'Ανανέωση κάθε Κυριακή μέσω Google Places API. Χωρίς επεξεργασία ή φιλτράρισμα.',meth3h:'Πλήρης διαφάνεια',meth3p:'Ο κώδικας είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία.',meth4h:'Πανελλαδική κάλυψη',meth4p:'Όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτικά, νησιά, Κρήτη.',footerText:'Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:',updated:'Τελευταία ενημέρωση:',reviews:n=>n.toLocaleString('el-GR')+' κριτικές',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' από 01/01',rname:r=>r,detailBtn:'Αναλυτικά αποτελέσματα ανά κατάστημα →',detailTitle:'Αναλυτικά αποτελέσματα ανά κατάστημα',detailClose:'✕ Κλείσιμο',allBrands:'Όλες οι εταιρίες',allRegions:'Όλες οι περιοχές',thCompany:'Εταιρία',thRegionCol:'Περιοχή',thAddress:'Διεύθυνση',thReviews:'Κριτικές'},
+  en:{rankTag:'Rankings',rankTitle:'Market comparison — Weighted Average Rating',rankSub:'Weighted by number of reviews per branch · Data:',trendTag:'Trend',trendTitle:'Weighted Average Trend — 2026',trendSub:'Select companies to compare',regionTag:'By region',regionTitle:'Results by region',regionSub:'Ranking of all companies in each geographic region',methTitle:'How the rating is calculated',meth1h:'Weighted Average',meth1p:'Branches with more reviews carry greater weight. Prevents distortion from small locations.',meth2h:'Automatic updates',meth2p:'Refreshed every Sunday via Google Places API. No processing or filtering.',meth3h:'Full transparency',meth3p:'The code is publicly available. Anyone can verify the methodology.',meth4h:'Nationwide coverage',meth4p:'All branches across Greece — mainland, islands, and Crete.',footerText:'Data is sourced automatically from the Google Places API and is not processed or filtered. The data collection script is publicly available:',updated:'Last updated:',reviews:n=>n.toLocaleString('en-US')+' reviews',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' since 01/01',rname:r=>REGION_EN[r]||r,detailBtn:'Detailed results by branch →',detailTitle:'Detailed results by branch',detailClose:'✕ Close',allBrands:'All companies',allRegions:'All regions',thCompany:'Company',thRegionCol:'Region',thAddress:'Address',thReviews:'Reviews'},
 };
 
 let lang='el', SNAPSHOTS=[], LATEST={}, REGION_DATA={}, LATEST_LABEL='';
@@ -215,6 +282,12 @@ async function init(){
     SNAPSHOTS=snaps.map(s=>({label:s.label.substring(0,5),data:Object.fromEntries(BRANDS5.map(b=>[b.id,s.summary[b.id]?.weighted_avg??null]))}));
     BRANDS5.forEach(b=>{const cur=latest.summary[b.id]||{},fst=first.summary[b.id]||{};LATEST[b.id]={score:cur.weighted_avg||0,reviews:cur.total_reviews||0,vs01:(cur.weighted_avg&&fst.weighted_avg)?Math.round((cur.weighted_avg-fst.weighted_avg)*100)/100:0};});
     REGION_ORDER.forEach(region=>{REGION_DATA[region]={};BRANDS5.forEach(b=>{const val=latest.regions[region+'||'+b.id];if(val)REGION_DATA[region][b.id]={score:val.weighted_avg,reviews:val.total_reviews};});});
+    // Cache places with region info for detail modal
+    const BRAND_IDS = new Set(BRANDS5.map(b=>b.id));
+    window._PLACES = (latest.places||[])
+      .filter(p => BRAND_IDS.has(p.brand) && p.rating)
+      .map(p => ({...p, _region: detectRegion(p.lat, p.lng)}));
+
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='block';
     applyLang('el');renderChart();
@@ -224,6 +297,94 @@ async function init(){
   }
 }
 init();
+
+// ── DETAIL MODAL ──────────────────────────────────────────────────────
+let detailPage = 1;
+const DETAIL_PAGE_SIZE = 50;
+
+function openDetail() {
+  // Populate filters
+  const dBrand = document.getElementById('d-brand');
+  const dRegion = document.getElementById('d-region');
+  // Clear and repopulate
+  while(dBrand.options.length > 1) dBrand.remove(1);
+  while(dRegion.options.length > 1) dRegion.remove(1);
+  BRANDS5.forEach(b => { const o = document.createElement('option'); o.value = b.id; o.textContent = b.id; dBrand.appendChild(o); });
+  REGION_ORDER.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = T[lang].rname(r); dRegion.appendChild(o); });
+  document.getElementById('detail-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  detailPage = 1;
+  renderDetail();
+}
+
+function closeDetail() {
+  document.getElementById('detail-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function getDetailPlaces() {
+  // Get latest places from REGION_DATA — we need raw places
+  // We'll use a cached version loaded during init
+  return window._PLACES || [];
+}
+
+function renderDetail() {
+  const t = T[lang];
+  const bFilter = document.getElementById('d-brand').value;
+  const rFilter = document.getElementById('d-region').value;
+  const sFilter = document.getElementById('d-search').value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  
+  let rows = (window._PLACES || []).filter(p => {
+    if(bFilter && p.brand !== bFilter) return false;
+    if(rFilter && p._region !== rFilter) return false;
+    if(sFilter) {
+      const addr = (p.address||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      if(!addr.includes(sFilter)) return false;
+    }
+    return true;
+  });
+  rows.sort((a,b) => b.reviews - a.reviews);
+
+  const total = rows.length;
+  const totalPages = Math.ceil(total / DETAIL_PAGE_SIZE);
+  if(detailPage > totalPages) detailPage = 1;
+  const pageRows = rows.slice((detailPage-1)*DETAIL_PAGE_SIZE, detailPage*DETAIL_PAGE_SIZE);
+
+  const ratingColor = r => r >= 4 ? '#059669' : r >= 3.5 ? '#065f46' : r >= 3 ? '#d97706' : '#dc2626';
+  const ratingBg = r => r >= 4 ? '#d1fae5' : r >= 3.5 ? '#d1fae5' : r >= 3 ? '#fef3c7' : '#fee2e2';
+
+  document.getElementById('detail-tbody').innerHTML = pageRows.map(p => {
+    const b = BRANDS5.find(x => x.id === p.brand);
+    const regionName = t.rname(p._region || '');
+    const mapLink = p.maps_url ? `<a href="${p.maps_url}" target="_blank" style="color:var(--cc);font-size:11px">Maps ↗</a>` : '';
+    return `<tr style="border-bottom:.5px solid var(--border)">
+      <td style="padding:8px 14px;white-space:nowrap"><img src="${b?.logo||''}" style="height:18px;width:50px;object-fit:contain;vertical-align:middle" alt="${p.brand}"></td>
+      <td style="padding:8px 14px;font-size:12px;color:var(--secondary);white-space:nowrap">${regionName}</td>
+      <td style="padding:8px 14px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--secondary)">${p.address||''}</td>
+      <td style="padding:8px 14px;text-align:right"><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;font-weight:600;background:${ratingBg(p.rating)};color:${ratingColor(p.rating)}">${p.rating?.toFixed(1)||'—'}</span></td>
+      <td style="padding:8px 14px;text-align:right;color:var(--secondary);white-space:nowrap">${(p.reviews||0).toLocaleString()}</td>
+      <td style="padding:8px 14px;text-align:center">${mapLink}</td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const pg = document.getElementById('detail-pagination');
+  if(totalPages <= 1) {
+    pg.innerHTML = `<span>${total.toLocaleString()} αποτελέσματα</span>`;
+  } else {
+    let btns = `<span style="margin-right:6px">${total.toLocaleString()} αποτελέσματα</span>`;
+    btns += `<button onclick="detailGoPage(${detailPage-1})" ${detailPage===1?'disabled':''} style="padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--card);cursor:pointer">‹</button>`;
+    for(let p=1;p<=totalPages;p++) {
+      if(p===1||p===totalPages||Math.abs(p-detailPage)<=1) {
+        btns += `<button onclick="detailGoPage(${p})" style="padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:${p===detailPage?'var(--dark)':'var(--card)'};color:${p===detailPage?'#fff':'inherit'};cursor:pointer">${p}</button>`;
+      } else if(Math.abs(p-detailPage)===2) btns += `<span>…</span>`;
+    }
+    btns += `<button onclick="detailGoPage(${detailPage+1})" ${detailPage===totalPages?'disabled':''} style="padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--card);cursor:pointer">›</button>`;
+    pg.innerHTML = btns;
+  }
+}
+
+function detailGoPage(p) { detailPage = p; renderDetail(); }
 </script>
 </body>
 </html>
