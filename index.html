@@ -149,8 +149,8 @@ footer a{color:var(--cc);text-decoration:none}
                 <th style="padding:10px 14px;text-align:left;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thCompany">Εταιρία</th>
                 <th style="padding:10px 14px;text-align:left;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thRegionCol">Περιοχή</th>
                 <th style="padding:10px 14px;text-align:left;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thAddress">Διεύθυνση</th>
-                <th style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5">Rating</th>
-                <th style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thReviews">Κριτικές</th>
+                <th id="dth-rating" onclick="detailSort('rating')" style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5;cursor:pointer;user-select:none">Rating <span id="dth-rating-icon">↕</span></th>
+                <th id="dth-reviews" onclick="detailSort('reviews')" style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5;cursor:pointer;user-select:none" data-i18n="thReviews">Κριτικές <span id="dth-reviews-icon">↓</span></th>
                 <th style="padding:10px 14px;text-align:center;position:sticky;top:57px;background:var(--dark);z-index:5"></th>
               </tr>
             </thead>
@@ -308,6 +308,8 @@ init();
 // ── DETAIL MODAL ──────────────────────────────────────────────────────
 let detailPage = 1;
 const DETAIL_PAGE_SIZE = 50;
+let detailSortCol = 'reviews';
+let detailSortDir = -1;
 
 function openDetail() {
   // Populate filters
@@ -351,7 +353,11 @@ function renderDetail() {
     }
     return true;
   });
-  rows.sort((a,b) => b.reviews - a.reviews);
+  rows.sort((a,b) => {
+    const va = detailSortCol==='rating' ? (a.rating||0) : (a.reviews||0);
+    const vb = detailSortCol==='rating' ? (b.rating||0) : (b.reviews||0);
+    return (vb-va)*detailSortDir;
+  });
 
   const total = rows.length;
   const totalPages = pageSize >= 999999 ? 1 : Math.ceil(total / pageSize);
@@ -390,6 +396,15 @@ function renderDetail() {
     btns += `<button onclick="detailGoPage(${detailPage+1})" ${detailPage===totalPages?'disabled':''} style="padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--card);cursor:pointer">›</button>`;
     pg.innerHTML = btns;
   }
+}
+
+function detailSort(col) {
+  if(detailSortCol === col) { detailSortDir *= -1; }
+  else { detailSortCol = col; detailSortDir = -1; }
+  document.getElementById('dth-rating-icon').textContent = detailSortCol==='rating' ? (detailSortDir===1?'↑':'↓') : '↕';
+  document.getElementById('dth-reviews-icon').textContent = detailSortCol==='reviews' ? (detailSortDir===1?'↑':'↓') : '↕';
+  detailPage = 1;
+  renderDetail();
 }
 
 function detailGoPage(p) {
