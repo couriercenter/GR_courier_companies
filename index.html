@@ -411,6 +411,8 @@ footer a { color: var(--cc-orange); text-decoration: none; }
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────
+const HISTORY_URL = 'https://raw.githubusercontent.com/couriercenter/courier-ratings/main/history.json';
+
 const BRANDS5 = [
   { id: 'cc',  name: 'Courier Center',     color: '#F47920', logo: 'logos/courier_center.png' },
   { id: 'acs', name: 'ACS',                color: '#CC0000', logo: 'logos/acs.png' },
@@ -419,23 +421,81 @@ const BRANDS5 = [
   { id: 'gen', name: 'Γενική Ταχυδρομική', color: '#003DA5', logo: 'logos/geniki.png' },
 ];
 
-const SNAPSHOTS = [
-  { label: '01/01', data: { cc: 3.75, acs: 3.38, spx: 2.75, elt: 2.75, gen: 2.56 } },
-  { label: '08/02', data: { cc: 3.87, acs: 3.41, spx: 2.76, elt: 2.82, gen: 2.53 } },
-  { label: '01/03', data: { cc: 3.90, acs: 3.47, spx: 2.76, elt: 2.83, gen: 2.52 } },
-  { label: '15/03', data: { cc: 3.93, acs: 3.42, spx: 2.77, elt: 2.83, gen: 2.55 } },
-  { label: '29/03', data: { cc: 3.96, acs: 3.44, spx: 2.77, elt: 2.82, gen: 2.54 } },
-  { label: '12/04', data: { cc: 3.98, acs: 3.48, spx: 2.77, elt: 2.82, gen: 2.54 } },
-  { label: '09/05', data: { cc: 4.01, acs: 3.42, spx: 2.77, elt: 2.79, gen: 2.54 } },
-];
+// ── Dynamic data from history.json ─────────────────────────────────────
+let SNAPSHOTS = [];
+let LATEST = {};
+let REGION_DATA = {};
+let LATEST_LABEL = '';
 
-const LATEST = {
-  cc:  { score: 4.01, reviews: 48151,  vs01: +0.26 },
-  acs: { score: 3.42, reviews: 176899, vs01: +0.04 },
-  spx: { score: 2.77, reviews: 43678,  vs01: +0.02 },
-  elt: { score: 2.79, reviews: 52585,  vs01: +0.04 },
-  gen: { score: 2.54, reviews: 66153,  vs01: -0.02 },
-};
+async function loadHistory() {
+  try {
+    const r = await fetch('https://raw.githubusercontent.com/couriercenter/courier-ratings/main/history.json?t=' + Date.now());
+    const h = await r.json();
+    const snaps = h.snapshots;
+    const latestSnap = snaps[snaps.length - 1];
+    const firstSnap  = snaps[0];
+    LATEST_LABEL = latestSnap.label;
+
+    // Build SNAPSHOTS for trend chart
+    SNAPSHOTS = snaps.map(s => {
+      const d = {};
+      ['Courier Center','ACS','SPEEDEX','ΕΛΤΑ Courier','Γενική Ταχυδρομική'].forEach(b => {
+        const id = {
+          'Courier Center':'cc','ACS':'acs','SPEEDEX':'spx',
+          'ΕΛΤΑ Courier':'elt','Γενική Ταχυδρομική':'gen'
+        }[b];
+        d[id] = s.summary[b] ? s.summary[b].weighted_avg : null;
+      });
+      return { label: s.label.substring(0,5), data: d };
+    });
+
+    // Build LATEST
+    ['Courier Center','ACS','SPEEDEX','ΕΛΤΑ Courier','Γενική Ταχυδρομική'].forEach(b => {
+      const id = {'Courier Center':'cc','ACS':'acs','SPEEDEX':'spx','ΕΛΤΑ Courier':'elt','Γενική Ταχυδρομική':'gen'}[b];
+      const cur = latestSnap.summary[b] || {};
+      const fst = firstSnap.summary[b] || {};
+      LATEST[id] = {
+        score:   cur.weighted_avg || 0,
+        reviews: cur.total_reviews || 0,
+        vs01:    cur.weighted_avg && fst.weighted_avg ? Math.round((cur.weighted_avg - fst.weighted_avg) * 100) / 100 : 0,
+      };
+    });
+
+    // Build REGION_DATA
+    const REGION_ORDER = ['ΑΤΤΙΚΗ','Κεντρική Ελλάδα','Θεσσαλονίκη','Βόρεια Ελλάδα',
+      'Δυτική Ελλάδα (με Κέρκυρα)','Πελοπόννησος','ΚΡΗΤΗ','Υπόλοιπα νησιά'];
+    const BRANDS5_LIST = ['Courier Center','ACS','SPEEDEX','ΕΛΤΑ Courier','Γενική Ταχυδρομική'];
+    REGION_DATA = {};
+    REGION_ORDER.forEach(region => {
+      REGION_DATA[region] = {};
+      BRANDS5_LIST.forEach(brand => {
+        const key = region + '||' + brand;
+        const val = latestSnap.regions[key];
+        if(val) REGION_DATA[region][brand] = { score: val.weighted_avg, reviews: val.total_reviews };
+      });
+    });
+
+    // Update footer/header date
+    document.querySelectorAll('[data-i18n="footerLeft"]').forEach(el => {
+      el.textContent = el.textContent.replace(/\d{2}\/\d{2}\/\d{4}/, LATEST_LABEL);
+    });
+    document.querySelectorAll('[data-i18n="rankSub"]').forEach(el => {
+      el.textContent = el.textContent.replace(/\d{2}\/\d{2}\/\d{4}/, LATEST_LABEL);
+    });
+    // Hero stats - update score and reviews
+    const heroScore = document.querySelector('.hero-stat .val');
+    if(heroScore) heroScore.textContent = LATEST.cc.score.toFixed(2);
+    const heroVs = document.querySelectorAll('.hero-stat .val');
+    if(heroVs[3]) heroVs[3].textContent = (LATEST.cc.vs01 > 0 ? '+' : '') + LATEST.cc.vs01.toFixed(2);
+    const heroRevEl = document.querySelectorAll('.hero-stat .val')[1];
+    if(heroRevEl) heroRevEl.textContent = Math.round(LATEST.cc.reviews / 1000) + 'K+';
+
+  } catch(e) {
+    console.error('Failed to load history:', e);
+  }
+}
+
+
 
 const REGION_NAMES = {
   'ΑΤΤΙΚΗ':                      { en: 'Attica' },
@@ -521,64 +581,6 @@ const T = {
     regionTag: 'Ανά περιοχή', regionTitle: 'Courier Center — Αποτελέσματα ανά περιοχή',
     regionSub: 'Weighted Average Rating σε κάθε γεωγραφική περιοχή',
     regionRankLabel: (rank) => `#${rank} στην περιοχή`,
-    reviewsLabel: (n) => `${n.toLocaleString('el-GR')} κριτικές`,
-    sinceLabel: (d) => `+${d > 0 ? '+' : ''}${d.toFixed(2)} από ${d > 0 ? '01/01' : '01/01'}`,
-    methTitle: 'Πώς υπολογίζεται η αξιολόγηση',
-    meth1h: 'Weighted Average', meth1p: 'Τα καταστήματα με περισσότερες κριτικές έχουν μεγαλύτερο βάρος. Αποφεύγει στρεβλώσεις από μικρά σημεία.',
-    meth2h: 'Αυτόματη ενημέρωση', meth2p: 'Ανανέωση κάθε Κυριακή μέσω Google Places API. Χωρίς επεξεργασία ή φιλτράρισμα.',
-    meth3h: 'Πλήρης διαφάνεια', meth3p: 'Ο κώδικας είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία.',
-    meth4h: 'Πανελλαδική κάλυψη', meth4p: 'Όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτικά, νησιά, Κρήτη.',
-    footerLeft: 'Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:',
-    vsLabel: (d) => d > 0 ? `+${d.toFixed(2)} από 01/01` : `${d.toFixed(2)} από 01/01`,
-    regionNameKey: 'name_el',
-  },
-  en: {
-    badge: 'Official Google Rating · Updated every Sunday',
-    h1a: 'Customer experience ', h1b: 'at our core', h1c: ' — and the numbers prove it',
-    heroSub: 'Continuous improvement, verified reviews, clear goal: to deliver the best courier experience in Greece.',
-    statScore: 'Weighted Avg', statReviews: 'Google Reviews', statRank: 'Market position', statGrowth: 'Growth 2026',
-    rankTag: 'Rankings', rankTitle: 'Market comparison — Weighted Average Rating',
-    rankSub: 'Weighted by number of reviews per branch · Data: 09/05/2026',
-    trendTag: 'Trend', trendTitle: 'Weighted Average Trend — Jan. 2026 to today',
-    trendSub: 'Select companies to compare',
-    regionTag: 'By region', regionTitle: 'Courier Center — Results by region',
-    regionSub: 'Weighted Average Rating in each geographic region',
-    regionRankLabel: (rank) => `#${rank} in region`,
-    reviewsLabel: (n) => `${n.toLocaleString('en-US')} reviews`,
-    vsLabel: (d) => d > 0 ? `+${d.toFixed(2)} since 01/01` : `${d.toFixed(2)} since 01/01`,
-    methTitle: 'How the rating is calculated',
-    meth1h: 'Weighted Average', meth1p: 'Branches with more reviews carry greater weight. Prevents distortion from small locations with few reviews.',
-    meth2h: 'Automatic updates', meth2p: 'Refreshed every Sunday via Google Places API. No processing or filtering of results.',
-    meth3h: 'Full transparency', meth3p: 'The data collection code is publicly available. Anyone can verify the methodology and results.',
-    meth4h: 'Nationwide coverage', meth4p: 'All branches across Greece — mainland, islands, and Crete.',
-    footerLeft: 'Data is sourced automatically from the Google Places API and is not processed or filtered. The data collection script is publicly available:',
-    regionNameKey: 'name_en',
-  },
-};
-
-let lang = 'el';
-
-function stars(r) {
-  const full = Math.floor(r);
-  const half = r - full >= 0.3 ? 1 : 0;
-  return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(5 - full - half);
-}
-
-// ── RANKING ───────────────────────────────────────────────────────────
-function renderRanking() {
-  const t = T[lang];
-  const sorted = [...BRANDS5].sort((a,b) => LATEST[b.id].score - LATEST[a.id].score);
-  const grid = document.getElementById('ranking-grid');
-  grid.innerHTML = sorted.map((brand, i) => {
-    const d = LATEST[brand.id];
-    const rank = i + 1;
-    const vs = d.vs01;
-    const badgeCls = vs > 0.005 ? 'up' : vs < -0.005 ? 'down' : 'flat';
-    const badgeTxt = (vs > 0 ? '+' : '') + vs.toFixed(2) + ' ' + (lang === 'el' ? 'από 01/01' : 'since 01/01');
-    return `<div class="rank-card rank-${rank}">
-      <div class="rank-number">${rank}</div>
-      <img class="rank-logo" src="${brand.logo}" alt="${brand.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-      <div class="rank-name" style="color:${brand.color}">${brand.name}</div>
       <div class="rank-info">
         <div class="rank-score" style="${rank===1?'':'color:var(--text-primary)'}">${d.score.toFixed(2)}</div>
         <div class="rank-stars">${stars(d.score)}</div>
@@ -712,6 +714,13 @@ function applyLang(l) {
 function setLang(l) { applyLang(l); }
 
 // ── INIT ──────────────────────────────────────────────────────────────
+async function init() {
+  await loadHistory();
+  applyLang('el');
+  renderChartFilters();
+  renderChart();
+}
+init();
 applyLang('el');
 renderChartFilters();
 renderChart();
