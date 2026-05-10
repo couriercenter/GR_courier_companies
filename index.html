@@ -3,727 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Courier Center — Google Ratings</title>
+<title>GR Courier Market — Google Ratings</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <style>
-:root {
-  --cc-orange: #F47920;
-  --cc-orange-light: #FFF0E6;
-  --cc-dark: #1A1A2E;
-  --cc-mid: #2D2D44;
-  --text-primary: #1A1A2E;
-  --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
-  --bg: #F8F7F4;
-  --bg-card: #FFFFFF;
-  --border: #E8E4DE;
-  --green: #059669;
-  --green-bg: #D1FAE5;
-  --red: #DC2626;
-  --red-bg: #FEE2E2;
-  --yellow: #D97706;
-  --yellow-bg: #FEF3C7;
-  --radius: 16px;
-  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
-  --shadow-hero: 0 8px 32px rgba(244,121,32,.15);
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text-primary);
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-/* ── NAV ── */
-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(248,247,244,.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 clamp(16px,4vw,48px);
-  display: flex; align-items: center; justify-content: space-between;
-  height: 60px;
-}
-.nav-brand {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 17px;
-  color: var(--cc-orange);
-  letter-spacing: -.3px;
-}
-.nav-brand span { color: var(--text-primary); }
-.lang-toggle {
-  display: flex; gap: 4px;
-  background: var(--border); border-radius: 20px; padding: 3px;
-}
-.lang-btn {
-  padding: 4px 12px; border-radius: 16px; border: none;
-  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
-  cursor: pointer; transition: all .2s;
-  background: transparent; color: var(--text-secondary);
-}
-.lang-btn.active { background: var(--cc-dark); color: #fff; }
-
-/* ── LAYOUT ── */
-.container { max-width: 1080px; margin: 0 auto; padding: 0 clamp(16px,4vw,48px); }
-section { padding: 64px 0; }
-section + section { padding-top: 0; }
-
-/* ── HERO ── */
-.hero {
-  padding: 72px 0 56px;
-  text-align: center;
-}
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--cc-orange-light); color: var(--cc-orange);
-  border: 1px solid rgba(244,121,32,.2);
-  border-radius: 100px; padding: 6px 16px;
-  font-size: 13px; font-weight: 500; margin-bottom: 24px;
-}
-.hero-badge::before { content: '★'; font-size: 14px; }
-.hero h1 {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: clamp(32px,6vw,60px);
-  line-height: 1.1; letter-spacing: -1.5px;
-  margin-bottom: 20px;
-  color: var(--text-primary);
-}
-.hero h1 em {
-  font-style: normal; color: var(--cc-orange);
-  position: relative;
-}
-.hero h1 em::after {
-  content: '';
-  position: absolute; bottom: 2px; left: 0; right: 0;
-  height: 3px; background: var(--cc-orange); border-radius: 2px;
-  opacity: .3;
-}
-.hero-sub {
-  font-size: clamp(15px,2vw,18px);
-  color: var(--text-secondary); max-width: 560px; margin: 0 auto 40px;
-  font-weight: 300; line-height: 1.7;
-}
-.hero-stats {
-  display: flex; justify-content: center; flex-wrap: wrap; gap: 32px;
-  margin-top: 40px;
-}
-.hero-stat { text-align: center; }
-.hero-stat .val {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(28px,4vw,42px); font-weight: 800;
-  color: var(--cc-orange); line-height: 1;
-}
-.hero-stat .lbl {
-  font-size: 12px; color: var(--text-muted); margin-top: 4px;
-  text-transform: uppercase; letter-spacing: .8px; font-weight: 500;
-}
-.hero-divider { width: 1px; height: 48px; background: var(--border); align-self: center; }
-
-/* ── SECTION HEADERS ── */
-.section-header { margin-bottom: 32px; }
-.section-header h2 {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(22px,3vw,30px); font-weight: 700; letter-spacing: -.5px;
-}
-.section-header p { color: var(--text-secondary); margin-top: 6px; font-size: 14px; }
-.section-tag {
-  display: inline-block;
-  font-size: 11px; font-weight: 600; letter-spacing: 1px;
-  text-transform: uppercase; color: var(--cc-orange);
-  margin-bottom: 8px;
-}
-
-/* ── RANKING CARDS ── */
-.ranking-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-.rank-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 24px;
-  display: flex; align-items: center; gap: 20px;
-  box-shadow: var(--shadow);
-  transition: transform .15s, box-shadow .15s;
-  position: relative; overflow: hidden;
-}
-.rank-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
-.rank-card.rank-1 {
-  border-color: var(--cc-orange);
-  background: linear-gradient(135deg, #FFF7F0 0%, #FFFFFF 100%);
-  box-shadow: var(--shadow-hero);
-}
-.rank-card.rank-1::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--cc-orange), #FFB347);
-}
-.rank-number {
-  font-family: 'Syne', sans-serif;
-  font-size: 32px; font-weight: 800;
-  color: var(--border); min-width: 36px; text-align: center; line-height: 1;
-}
-.rank-card.rank-1 .rank-number { color: var(--cc-orange); }
-.rank-logo { width: 80px; height: 36px; object-fit: contain; flex-shrink: 0; }
-.rank-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 15px; display: none;
-}
-.rank-info { flex: 1; }
-.rank-score {
-  font-family: 'Syne', sans-serif;
-  font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 2px;
-}
-.rank-card.rank-1 .rank-score { color: var(--cc-orange); }
-.rank-stars { color: #F59E0B; font-size: 14px; letter-spacing: 1px; }
-.rank-meta { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-.rank-badge {
-  font-size: 11px; font-weight: 600; padding: 3px 10px;
-  border-radius: 100px; white-space: nowrap; margin-left: auto;
-}
-.rank-badge.up { background: var(--green-bg); color: var(--green); }
-.rank-badge.down { background: var(--red-bg); color: var(--red); }
-.rank-badge.flat { background: #F3F4F6; color: var(--text-muted); }
-
-/* ── TREND CHART ── */
-.chart-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px;
-  box-shadow: var(--shadow);
-}
-.chart-filters {
-  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
-}
-.chart-btn {
-  padding: 5px 14px; border-radius: 100px; border: 1.5px solid;
-  font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s;
-  font-family: 'DM Sans', sans-serif;
-}
-.chart-btn.active { color: #fff; }
-canvas { max-height: 300px; }
-
-/* ── REGIONS ── */
-.regions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 12px;
-}
-.region-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 24px;
-  box-shadow: var(--shadow);
-}
-.region-name {
-  font-family: 'Syne', sans-serif;
-  font-size: 13px; font-weight: 700; letter-spacing: .3px;
-  margin-bottom: 14px; color: var(--text-secondary);
-  text-transform: uppercase; display: flex; align-items: center; gap: 6px;
-}
-.region-name::before { content: '📍'; font-size: 12px; }
-.region-score {
-  font-family: 'Syne', sans-serif;
-  font-size: 36px; font-weight: 800; color: var(--cc-orange); line-height: 1;
-}
-.region-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; margin-bottom: 12px; }
-.region-rank { font-size: 13px; color: var(--text-secondary); }
-.region-rank strong { color: var(--cc-orange); }
-
-/* ── METHODOLOGY ── */
-.method-box {
-  background: var(--cc-dark); color: #fff;
-  border-radius: var(--radius); padding: 40px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
-}
-.method-box h3 {
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px;
-  margin-bottom: 12px; grid-column: 1/-1;
-}
-.method-item { display: flex; gap: 12px; }
-.method-icon {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: rgba(244,121,32,.15); color: var(--cc-orange);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
-}
-.method-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-.method-item p { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.5; }
-
-/* ── FOOTER ── */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 28px clamp(16px,4vw,48px);
-  display: flex; flex-wrap: wrap; align-items: center;
-  justify-content: space-between; gap: 12px;
-  font-size: 12px; color: var(--text-muted);
-}
-footer a { color: var(--cc-orange); text-decoration: none; }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 640px) {
-  .method-box { grid-template-columns: 1fr; }
-  .hero-divider { display: none; }
-  .rank-logo { width: 60px; }
-}
+:root{--cc:#F47920;--dark:#1A1A2E;--bg:#F8F7F4;--card:#fff;--border:#E8E4DE;--muted:#9CA3AF;--secondary:#6B7280;--green:#059669;--green-bg:#D1FAE5;--red:#DC2626;--red-bg:#FEE2E2;--r:16px;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);font-size:15px;line-height:1.6}
+nav{position:sticky;top:0;z-index:100;background:rgba(248,247,244,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;height:60px}
+.lang-toggle{display:flex;gap:4px;background:var(--border);border-radius:20px;padding:3px}
+.lang-btn{padding:4px 12px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;color:var(--secondary)}
+.lang-btn.active{background:var(--dark);color:#fff}
+.nav-updated{font-size:12px;color:var(--muted)}
+.container{max-width:1080px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+section{padding:56px 0}
+section+section{padding-top:0}
+.section-header{margin-bottom:28px}
+.section-tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--cc);margin-bottom:6px}
+.section-header h2{font-family:'Syne',sans-serif;font-size:clamp(20px,3vw,28px);font-weight:700;letter-spacing:-.5px}
+.section-header p{color:var(--secondary);margin-top:6px;font-size:13px}
+.ranking-grid{display:grid;gap:10px}
+.rank-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:flex;align-items:center;gap:18px;box-shadow:var(--shadow);transition:transform .15s;position:relative;overflow:hidden}
+.rank-card:hover{transform:translateY(-2px)}
+.rank-card.rank-1{border-color:var(--cc);background:linear-gradient(135deg,#FFF7F0,#fff)}
+.rank-card.rank-1::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cc),#FFB347)}
+.rank-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--border);min-width:32px;text-align:center}
+.rank-card.rank-1 .rank-num{color:var(--cc)}
+.rank-logo{width:76px;height:34px;object-fit:contain;flex-shrink:0}
+.rank-info{flex:1}
+.rank-score{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;margin-bottom:2px}
+.rank-card.rank-1 .rank-score{color:var(--cc)}
+.rank-stars{color:#F59E0B;font-size:13px;letter-spacing:1px}
+.rank-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.rank-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;white-space:nowrap;margin-left:auto}
+.rank-badge.up{background:var(--green-bg);color:var(--green)}
+.rank-badge.down{background:var(--red-bg);color:var(--red)}
+.rank-badge.flat{background:#F3F4F6;color:var(--muted)}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--shadow)}
+.chart-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.chart-btn{padding:5px 14px;border-radius:100px;border:1.5px solid;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.chart-btn.active{color:#fff}
+canvas{max-height:280px}
+.regions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.region-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;box-shadow:var(--shadow)}
+.region-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.3px;margin-bottom:12px;color:var(--secondary);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.region-name::before{content:'📍';font-size:11px}
+.method-box{background:var(--dark);color:#fff;border-radius:var(--r);padding:36px;display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.method-box h3{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;margin-bottom:8px;grid-column:1/-1}
+.method-item{display:flex;gap:12px}
+.method-icon{width:34px;height:34px;border-radius:10px;background:rgba(244,121,32,.15);color:var(--cc);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.method-item h4{font-size:13px;font-weight:600;margin-bottom:3px}
+.method-item p{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5}
+footer{border-top:1px solid var(--border);padding:24px clamp(16px,4vw,48px);font-size:12px;color:var(--muted)}
+footer a{color:var(--cc);text-decoration:none}
+#loading{display:flex;align-items:center;justify-content:center;height:300px;font-size:14px;color:var(--muted)}
+@media(max-width:640px){.method-box{grid-template-columns:1fr}.rank-logo{width:56px}}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-
+  <div class="nav-updated" id="nav-updated"></div>
   <div class="lang-toggle">
     <button class="lang-btn active" onclick="setLang('el')">ΕΛ</button>
     <button class="lang-btn" onclick="setLang('en')">EN</button>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="container">
-    <div class="hero-badge" data-i18n="badge">Επίσημη Αξιολόγηση Google · Ενημερώνεται κάθε Κυριακή</div>
-    <h1>
-      <span data-i18n="h1a">Η εξυπηρέτηση του πελάτη </span><br>
-      <em data-i18n="h1b">στο επίκεντρο</em>
-      <span data-i18n="h1c"> — και τα νούμερα το αποδεικνύουν</span>
-    </h1>
-    <p class="hero-sub" data-i18n="heroSub">
-      Συνεχής πρόοδος, πραγματικές κριτικές, ξεκάθαρος στόχος: να γίνουμε η καλύτερη εμπειρία courier στην Ελλάδα.
-    </p>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="val">4.01</div>
-        <div class="lbl" data-i18n="statScore">Weighted Avg</div>
+<div id="loading">Φορτώνω δεδομένα…</div>
+
+<div id="app" style="display:none">
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag" data-i18n="rankTag">Κατάταξη</div>
+        <h2 data-i18n="rankTitle">Σύγκριση αγοράς — Weighted Average Rating</h2>
+        <p id="rank-sub"></p>
       </div>
-      <div class="hero-divider"></div>
-      <div class="hero-stat">
-        <div class="val">48K+</div>
-        <div class="lbl" data-i18n="statReviews">Κριτικές Google</div>
+      <div class="ranking-grid" id="ranking-grid"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag" data-i18n="trendTag">Τάση</div>
+        <h2 data-i18n="trendTitle">Εξέλιξη Weighted Average — 2026</h2>
+        <p data-i18n="trendSub">Επίλεξε εταιρίες για σύγκριση</p>
       </div>
-      <div class="hero-divider"></div>
-      <div class="hero-stat">
-        <div class="val">#1</div>
-        <div class="lbl" data-i18n="statRank">Στην αγορά</div>
-      </div>
-      <div class="hero-divider"></div>
-      <div class="hero-stat">
-        <div class="val">+0.26</div>
-        <div class="lbl" data-i18n="statGrowth">Άνοδος 2026</div>
+      <div class="chart-card">
+        <div class="chart-filters" id="chart-filters"></div>
+        <canvas id="trend-chart"></canvas>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- RANKING -->
-<section>
-  <div class="container">
-    <div class="section-header">
-      <div class="section-tag" data-i18n="rankTag">Κατάταξη</div>
-      <h2 data-i18n="rankTitle">Σύγκριση αγοράς — Weighted Average Rating</h2>
-      <p data-i18n="rankSub">Βασισμένη στον αριθμό κριτικών κάθε καταστήματος · Δεδομένα: 09/05/2026</p>
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag" data-i18n="regionTag">Ανά περιοχή</div>
+        <h2 data-i18n="regionTitle">Αποτελέσματα ανά περιοχή</h2>
+        <p data-i18n="regionSub">Κατάταξη όλων των εταιριών σε κάθε γεωγραφική περιοχή</p>
+      </div>
+      <div class="regions-grid" id="regions-grid"></div>
     </div>
-    <div class="ranking-grid" id="ranking-grid"></div>
-  </div>
-</section>
+  </section>
 
-<!-- TREND -->
-<section>
-  <div class="container">
-    <div class="section-header">
-      <div class="section-tag" data-i18n="trendTag">Τάση</div>
-      <h2 data-i18n="trendTitle">Εξέλιξη Weighted Average — Ιαν. 2026 έως σήμερα</h2>
-      <p data-i18n="trendSub">Επίλεξε εταιρίες για σύγκριση</p>
-    </div>
-    <div class="chart-card">
-      <div class="chart-filters" id="chart-filters"></div>
-      <canvas id="trend-chart"></canvas>
-    </div>
-  </div>
-</section>
-
-<!-- REGIONS -->
-<section>
-  <div class="container">
-    <div class="section-header">
-      <div class="section-tag" data-i18n="regionTag">Ανά περιοχή</div>
-      <h2 data-i18n="regionTitle">Courier Center — Αποτελέσματα ανά περιοχή</h2>
-      <p data-i18n="regionSub">Weighted Average Rating σε κάθε γεωγραφική περιοχή</p>
-    </div>
-    <div class="regions-grid" id="regions-grid"></div>
-  </div>
-</section>
-
-<!-- METHODOLOGY -->
-<section>
-  <div class="container">
-    <div class="method-box">
-      <h3 data-i18n="methTitle">Πώς υπολογίζεται η αξιολόγηση</h3>
-      <div class="method-item">
-        <div class="method-icon">📊</div>
-        <div>
-          <h4 data-i18n="meth1h">Weighted Average</h4>
-          <p data-i18n="meth1p">Τα καταστήματα με περισσότερες κριτικές έχουν μεγαλύτερο βάρος στον τελικό μέσο όρο. Αποφεύγει στρεβλώσεις από μικρά σημεία με λίγες κριτικές.</p>
+  <section>
+    <div class="container">
+      <div class="method-box">
+        <h3 data-i18n="methTitle">Πώς υπολογίζεται η αξιολόγηση</h3>
+        <div class="method-item">
+          <div class="method-icon">📊</div>
+          <div><h4 data-i18n="meth1h">Weighted Average</h4><p data-i18n="meth1p">Τα καταστήματα με περισσότερες κριτικές έχουν μεγαλύτερο βάρος. Αποφεύγει στρεβλώσεις από μικρά σημεία.</p></div>
         </div>
-      </div>
-      <div class="method-item">
-        <div class="method-icon">🔄</div>
-        <div>
-          <h4 data-i18n="meth2h">Αυτόματη ενημέρωση</h4>
-          <p data-i18n="meth2p">Τα δεδομένα ανανεώνονται αυτόματα κάθε Κυριακή μέσω του Google Places API. Δεν επεξεργαζόμαστε ούτε φιλτράρουμε τα αποτελέσματα.</p>
+        <div class="method-item">
+          <div class="method-icon">🔄</div>
+          <div><h4 data-i18n="meth2h">Αυτόματη ενημέρωση</h4><p data-i18n="meth2p">Ανανέωση κάθε Κυριακή μέσω Google Places API. Χωρίς επεξεργασία ή φιλτράρισμα.</p></div>
         </div>
-      </div>
-      <div class="method-item">
-        <div class="method-icon">🌐</div>
-        <div>
-          <h4 data-i18n="meth3h">Πλήρης διαφάνεια</h4>
-          <p data-i18n="meth3p">Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία και τα αποτελέσματα.</p>
+        <div class="method-item">
+          <div class="method-icon">🌐</div>
+          <div><h4 data-i18n="meth3h">Πλήρης διαφάνεια</h4><p data-i18n="meth3p">Ο κώδικας είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία.</p></div>
         </div>
-      </div>
-      <div class="method-item">
-        <div class="method-icon">📍</div>
-        <div>
-          <h4 data-i18n="meth4h">Πανελλαδική κάλυψη</h4>
-          <p data-i18n="meth4p">Συλλέγουμε δεδομένα από όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτική χώρα, νησιά, Κρήτη — για πλήρη εικόνα.</p>
+        <div class="method-item">
+          <div class="method-icon">📍</div>
+          <div><h4 data-i18n="meth4h">Πανελλαδική κάλυψη</h4><p data-i18n="meth4p">Όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτικά, νησιά, Κρήτη.</p></div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
-<!-- FOOTER -->
 <footer>
-  <span>
-    <span data-i18n="footerLeft">Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:</span>
-    <a href="https://github.com/couriercenter/courier-ratings/blob/main/courier_ratings.py" target="_blank">github.com/couriercenter/courier-ratings/courier_ratings.py</a>
-  </span>
+  <span data-i18n="footerText">Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:</span>
+  <a href="https://github.com/couriercenter/courier-ratings/blob/main/courier_ratings.py" target="_blank">github.com/couriercenter/courier-ratings/courier_ratings.py</a>
 </footer>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────
-const HISTORY_URL = 'https://raw.githubusercontent.com/couriercenter/courier-ratings/main/history.json';
-
 const BRANDS5 = [
-  { id: 'cc',  name: 'Courier Center',     color: '#F47920', logo: 'logos/courier_center.png' },
-  { id: 'acs', name: 'ACS',                color: '#CC0000', logo: 'logos/acs.png' },
-  { id: 'spx', name: 'SPEEDEX',            color: '#00A650', logo: 'logos/speedex.png' },
-  { id: 'elt', name: 'ΕΛΤΑ Courier',       color: '#C8102E', logo: 'logos/elta_courier.png' },
-  { id: 'gen', name: 'Γενική Ταχυδρομική', color: '#003DA5', logo: 'logos/geniki.png' },
+  { id:'Courier Center',     color:'#F47920', logo:'logos/courier_center.png' },
+  { id:'ACS',                color:'#CC0000', logo:'logos/acs.png' },
+  { id:'SPEEDEX',            color:'#00A650', logo:'logos/speedex.png' },
+  { id:'ΕΛΤΑ Courier',       color:'#C8102E', logo:'logos/elta_courier.png' },
+  { id:'Γενική Ταχυδρομική', color:'#003DA5', logo:'logos/geniki.png' },
 ];
+const REGION_ORDER = ['ΑΤΤΙΚΗ','Κεντρική Ελλάδα','Θεσσαλονίκη','Βόρεια Ελλάδα','Δυτική Ελλάδα (με Κέρκυρα)','Πελοπόννησος','ΚΡΗΤΗ','Υπόλοιπα νησιά'];
+const REGION_EN = {'ΑΤΤΙΚΗ':'Attica','Κεντρική Ελλάδα':'Central Greece','Θεσσαλονίκη':'Thessaloniki','Βόρεια Ελλάδα':'Northern Greece','Δυτική Ελλάδα (με Κέρκυρα)':'Western Greece (incl. Corfu)','Πελοπόννησος':'Peloponnese','ΚΡΗΤΗ':'Crete','Υπόλοιπα νησιά':'Other Islands'};
 
-// ── Dynamic data from history.json ─────────────────────────────────────
-let SNAPSHOTS = [];
-let LATEST = {};
-let REGION_DATA = {};
-let LATEST_LABEL = '';
+const T = {
+  el:{rankTag:'Κατάταξη',rankTitle:'Σύγκριση αγοράς — Weighted Average Rating',rankSub:'Βασισμένη στον αριθμό κριτικών κάθε καταστήματος · Δεδομένα:',trendTag:'Τάση',trendTitle:'Εξέλιξη Weighted Average — 2026',trendSub:'Επίλεξε εταιρίες για σύγκριση',regionTag:'Ανά περιοχή',regionTitle:'Αποτελέσματα ανά περιοχή',regionSub:'Κατάταξη όλων των εταιριών σε κάθε γεωγραφική περιοχή',methTitle:'Πώς υπολογίζεται η αξιολόγηση',meth1h:'Weighted Average',meth1p:'Τα καταστήματα με περισσότερες κριτικές έχουν μεγαλύτερο βάρος. Αποφεύγει στρεβλώσεις από μικρά σημεία.',meth2h:'Αυτόματη ενημέρωση',meth2p:'Ανανέωση κάθε Κυριακή μέσω Google Places API. Χωρίς επεξεργασία ή φιλτράρισμα.',meth3h:'Πλήρης διαφάνεια',meth3p:'Ο κώδικας είναι δημόσια διαθέσιμος. Ο καθένας μπορεί να επαληθεύσει τη μεθοδολογία.',meth4h:'Πανελλαδική κάλυψη',meth4p:'Όλα τα καταστήματα σε όλη την Ελλάδα — ηπειρωτικά, νησιά, Κρήτη.',footerText:'Τα δεδομένα αντλούνται αυτόματα από το Google Places API και δεν υφίστανται επεξεργασία. Ο κώδικας συλλογής δεδομένων είναι δημόσια διαθέσιμος:',updated:'Τελευταία ενημέρωση:',reviews:n=>n.toLocaleString('el-GR')+' κριτικές',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' από 01/01',rname:r=>r},
+  en:{rankTag:'Rankings',rankTitle:'Market comparison — Weighted Average Rating',rankSub:'Weighted by number of reviews per branch · Data:',trendTag:'Trend',trendTitle:'Weighted Average Trend — 2026',trendSub:'Select companies to compare',regionTag:'By region',regionTitle:'Results by region',regionSub:'Ranking of all companies in each geographic region',methTitle:'How the rating is calculated',meth1h:'Weighted Average',meth1p:'Branches with more reviews carry greater weight. Prevents distortion from small locations.',meth2h:'Automatic updates',meth2p:'Refreshed every Sunday via Google Places API. No processing or filtering.',meth3h:'Full transparency',meth3p:'The code is publicly available. Anyone can verify the methodology.',meth4h:'Nationwide coverage',meth4p:'All branches across Greece — mainland, islands, and Crete.',footerText:'Data is sourced automatically from the Google Places API and is not processed or filtered. The data collection script is publicly available:',updated:'Last updated:',reviews:n=>n.toLocaleString('en-US')+' reviews',vsFirst:d=>(d>0?'+':'')+d.toFixed(2)+' since 01/01',rname:r=>REGION_EN[r]||r},
+};
 
-async function loadHistory() {
-  try {
-    const r = await fetch('https://raw.githubusercontent.com/couriercenter/courier-ratings/main/history.json?t=' + Date.now());
-    const h = await r.json();
-    const snaps = h.snapshots;
-    const latestSnap = snaps[snaps.length - 1];
-    const firstSnap  = snaps[0];
-    LATEST_LABEL = latestSnap.label;
+let lang='el', SNAPSHOTS=[], LATEST={}, REGION_DATA={}, LATEST_LABEL='';
+let trendChart=null, activeBrands=new Set(['Courier Center']);
 
-    // Build SNAPSHOTS for trend chart
-    SNAPSHOTS = snaps.map(s => {
-      const d = {};
-      ['Courier Center','ACS','SPEEDEX','ΕΛΤΑ Courier','Γενική Ταχυδρομική'].forEach(b => {
-        const id = {
-          'Courier Center':'cc','ACS':'acs','SPEEDEX':'spx',
-          'ΕΛΤΑ Courier':'elt','Γενική Ταχυδρομική':'gen'
-        }[b];
-        d[id] = s.summary[b] ? s.summary[b].weighted_avg : null;
-      });
-      return { label: s.label.substring(0,5), data: d };
-    });
+function stars(r){const f=Math.floor(r),h=r%1>=0.3?1:0;return'★'.repeat(f)+(h?'½':'')+'☆'.repeat(5-f-h);}
 
-    // Build LATEST
-    ['Courier Center','ACS','SPEEDEX','ΕΛΤΑ Courier','Γενική Ταχυδρομική'].forEach(b => {
-      const id = {'Courier Center':'cc','ACS':'acs','SPEEDEX':'spx','ΕΛΤΑ Courier':'elt','Γενική Ταχυδρομική':'gen'}[b];
-      const cur = latestSnap.summary[b] || {};
-      const fst = firstSnap.summary[b] || {};
-      LATEST[id] = {
-        score:   cur.weighted_avg || 0,
-        reviews: cur.total_reviews || 0,
-        vs01:    cur.weighted_avg && fst.weighted_avg ? Math.round((cur.weighted_avg - fst.weighted_avg) * 100) / 100 : 0,
-      };
-    });
+function renderRanking(){
+  const t=T[lang];
+  const sorted=[...BRANDS5].sort((a,b)=>(LATEST[b.id]?.score||0)-(LATEST[a.id]?.score||0));
+  document.getElementById('ranking-grid').innerHTML=sorted.map((b,i)=>{
+    const d=LATEST[b.id]||{};const vs=d.vs01||0;
+    const bc=vs>0.005?'up':vs<-0.005?'down':'flat';
+    return `<div class="rank-card rank-${i+1}"><div class="rank-num">${i+1}</div><img class="rank-logo" src="${b.logo}" alt="${b.id}" onerror="this.style.display='none'"><div class="rank-info"><div class="rank-score">${d.score?.toFixed(2)||'—'}</div><div class="rank-stars">${stars(d.score||0)}</div><div class="rank-meta">${t.reviews(d.reviews||0)}</div></div><span class="rank-badge ${bc}">${t.vsFirst(vs)}</span></div>`;
+  }).join('');
+  document.getElementById('rank-sub').textContent=t.rankSub+' '+LATEST_LABEL;
+}
 
-    // Build REGION_DATA
-    const REGION_ORDER = ['ΑΤΤΙΚΗ','Κεντρική Ελλάδα','Θεσσαλονίκη','Βόρεια Ελλάδα',
-      'Δυτική Ελλάδα (με Κέρκυρα)','Πελοπόννησος','ΚΡΗΤΗ','Υπόλοιπα νησιά'];
-    const BRANDS5_LIST = ['Courier Center','ACS','SPEEDEX','ΕΛΤΑ Courier','Γενική Ταχυδρομική'];
-    REGION_DATA = {};
-    REGION_ORDER.forEach(region => {
-      REGION_DATA[region] = {};
-      BRANDS5_LIST.forEach(brand => {
-        const key = region + '||' + brand;
-        const val = latestSnap.regions[key];
-        if(val) REGION_DATA[region][brand] = { score: val.weighted_avg, reviews: val.total_reviews };
-      });
-    });
+function renderChart(){
+  const ds=BRANDS5.filter(b=>activeBrands.has(b.id)).map(b=>({label:b.id,data:SNAPSHOTS.map(s=>s.data[b.id]),borderColor:b.color,backgroundColor:b.color+'18',borderWidth:b.id==='Courier Center'?3:1.5,pointRadius:4,tension:0.3,spanGaps:true}));
+  if(trendChart)trendChart.destroy();
+  trendChart=new Chart(document.getElementById('trend-chart'),{type:'line',data:{labels:SNAPSHOTS.map(s=>s.label),datasets:ds},options:{responsive:true,maintainAspectRatio:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw?.toFixed(2)||'—'}`},itemSort:(a,b)=>b.raw-a.raw}},scales:{y:{min:ctx=>{const v=ctx.chart.data.datasets.flatMap(d=>d.data).filter(x=>x!=null);return v.length?Math.floor((Math.min(...v)-.2)*10)/10:2},max:ctx=>{const v=ctx.chart.data.datasets.flatMap(d=>d.data).filter(x=>x!=null);return v.length?Math.ceil((Math.max(...v)+.2)*10)/10:5},ticks:{stepSize:0.1,font:{size:11}}},x:{ticks:{font:{size:11}}}}}});
+}
 
-    // Update footer/header date
-    document.querySelectorAll('[data-i18n="footerLeft"]').forEach(el => {
-      el.textContent = el.textContent.replace(/\d{2}\/\d{2}\/\d{4}/, LATEST_LABEL);
-    });
-    document.querySelectorAll('[data-i18n="rankSub"]').forEach(el => {
-      el.textContent = el.textContent.replace(/\d{2}\/\d{2}\/\d{4}/, LATEST_LABEL);
-    });
-    // Hero stats - update score and reviews
-    const heroScore = document.querySelector('.hero-stat .val');
-    if(heroScore) heroScore.textContent = LATEST.cc.score.toFixed(2);
-    const heroVs = document.querySelectorAll('.hero-stat .val');
-    if(heroVs[3]) heroVs[3].textContent = (LATEST.cc.vs01 > 0 ? '+' : '') + LATEST.cc.vs01.toFixed(2);
-    const heroRevEl = document.querySelectorAll('.hero-stat .val')[1];
-    if(heroRevEl) heroRevEl.textContent = Math.round(LATEST.cc.reviews / 1000) + 'K+';
+function renderChartFilters(){
+  document.getElementById('chart-filters').innerHTML=BRANDS5.map(b=>`<button class="chart-btn ${activeBrands.has(b.id)?'active':''}" style="border-color:${b.color};${activeBrands.has(b.id)?`background:${b.color}`:`color:${b.color}`}" onclick="toggleBrand('${b.id}')">${b.id}</button>`).join('');
+}
+function toggleBrand(id){if(activeBrands.has(id)&&activeBrands.size===1)return;activeBrands.has(id)?activeBrands.delete(id):activeBrands.add(id);renderChartFilters();renderChart();}
 
-  } catch(e) {
-    console.error('Failed to load history:', e);
+function renderRegions(){
+  const t=T[lang];
+  document.getElementById('regions-grid').innerHTML=REGION_ORDER.map(region=>{
+    const brands=REGION_DATA[region];
+    if(!brands||!Object.keys(brands).length)return'';
+    const sorted=Object.entries(brands).filter(([,d])=>d.score).sort((a,b)=>b[1].score-a[1].score);
+    const rows=sorted.map(([brand,d],i)=>{
+      const b=BRANDS5.find(x=>x.id===brand);const isCC=brand==='Courier Center';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:${i<sorted.length-1?'1px solid var(--border)':'none'}"><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:${i===0?'var(--cc)':'var(--border)'};min-width:20px;text-align:center">${i+1}</div><img src="${b?.logo||''}" style="height:20px;width:56px;object-fit:contain;flex-shrink:0" alt="${brand}"><div style="flex:1"><div style="font-size:${isCC?'15px':'13px'};font-weight:${isCC?'700':'400'};color:${isCC?'var(--cc)':'var(--dark)'}">${d.score.toFixed(2)}</div><div style="font-size:11px;color:var(--muted)">${t.reviews(d.reviews||0)}</div></div></div>`;
+    }).join('');
+    return `<div class="region-card"><div class="region-name">${t.rname(region)}</div>${rows}</div>`;
+  }).filter(Boolean).join('');
+}
+
+function applyLang(l){
+  lang=l;const t=T[l];
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(typeof t[k]==='string')el.textContent=t[k];});
+  document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.textContent===(l==='el'?'ΕΛ':'EN')));
+  document.getElementById('nav-updated').textContent=t.updated+' '+LATEST_LABEL;
+  renderRanking();renderRegions();renderChartFilters();
+}
+function setLang(l){applyLang(l);}
+
+async function init(){
+  try{
+    const r=await fetch('https://couriercenter.github.io/courier-ratings/history.json?t='+Date.now());
+    const h=await r.json();
+    const snaps=h.snapshots, latest=snaps[snaps.length-1], first=snaps[0];
+    LATEST_LABEL=latest.label;
+    SNAPSHOTS=snaps.map(s=>({label:s.label.substring(0,5),data:Object.fromEntries(BRANDS5.map(b=>[b.id,s.summary[b.id]?.weighted_avg??null]))}));
+    BRANDS5.forEach(b=>{const cur=latest.summary[b.id]||{},fst=first.summary[b.id]||{};LATEST[b.id]={score:cur.weighted_avg||0,reviews:cur.total_reviews||0,vs01:(cur.weighted_avg&&fst.weighted_avg)?Math.round((cur.weighted_avg-fst.weighted_avg)*100)/100:0};});
+    REGION_ORDER.forEach(region=>{REGION_DATA[region]={};BRANDS5.forEach(b=>{const val=latest.regions[region+'||'+b.id];if(val)REGION_DATA[region][b.id]={score:val.weighted_avg,reviews:val.total_reviews};});});
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.display='block';
+    applyLang('el');renderChart();
+  }catch(e){
+    document.getElementById('loading').textContent='Σφάλμα φόρτωσης. Δοκιμάστε ξανά.';
+    console.error(e);
   }
 }
-
-
-
-const REGION_NAMES = {
-  'ΑΤΤΙΚΗ':                      { en: 'Attica' },
-  'Κεντρική Ελλάδα':             { en: 'Central Greece' },
-  'Θεσσαλονίκη':                 { en: 'Thessaloniki' },
-  'Βόρεια Ελλάδα':               { en: 'Northern Greece' },
-  'Δυτική Ελλάδα (με Κέρκυρα)': { en: 'Western Greece (incl. Corfu)' },
-  'Πελοπόννησος':                { en: 'Peloponnese' },
-  'ΚΡΗΤΗ':                       { en: 'Crete' },
-  'Υπόλοιπα νησιά':              { en: 'Other Islands' },
-};
-
-const REGION_DATA = {
-  'ΑΤΤΙΚΗ': {
-    'Courier Center':     { score: 3.85, reviews: 21741 },
-    'ACS':                { score: 3.03, reviews: 62675 },
-    'SPEEDEX':            { score: 2.39, reviews: 17027 },
-    'ΕΛΤΑ Courier':       { score: 2.50, reviews: 17022 },
-    'Γενική Ταχυδρομική': { score: 2.17, reviews: 25175 },
-  },
-  'Κεντρική Ελλάδα': {
-    'Courier Center':     { score: 4.22, reviews: 5705  },
-    'ACS':                { score: 3.69, reviews: 16284 },
-    'ΕΛΤΑ Courier':       { score: 3.12, reviews: 4659  },
-    'SPEEDEX':            { score: 3.09, reviews: 4521  },
-    'Γενική Ταχυδρομική': { score: 2.94, reviews: 5734  },
-  },
-  'Θεσσαλονίκη': {
-    'Courier Center':     { score: 3.88, reviews: 3623  },
-    'ACS':                { score: 3.34, reviews: 23177 },
-    'ΕΛΤΑ Courier':       { score: 3.31, reviews: 8431  },
-    'SPEEDEX':            { score: 2.85, reviews: 7169  },
-    'Γενική Ταχυδρομική': { score: 3.07, reviews: 7298  },
-  },
-  'Βόρεια Ελλάδα': {
-    'Courier Center':     { score: 4.42, reviews: 4998  },
-    'ACS':                { score: 4.07, reviews: 21406 },
-    'SPEEDEX':            { score: 3.39, reviews: 5042  },
-    'ΕΛΤΑ Courier':       { score: 3.31, reviews: 5672  },
-    'Γενική Ταχυδρομική': { score: 3.08, reviews: 6946  },
-  },
-  'Δυτική Ελλάδα (με Κέρκυρα)': {
-    'Courier Center':     { score: 4.34, reviews: 3873  },
-    'ACS':                { score: 3.73, reviews: 10045 },
-    'SPEEDEX':            { score: 3.74, reviews: 1116  },
-    'ΕΛΤΑ Courier':       { score: 2.50, reviews: 4128  },
-    'Γενική Ταχυδρομική': { score: 2.41, reviews: 4476  },
-  },
-  'Πελοπόννησος': {
-    'Courier Center':     { score: 4.29, reviews: 2463  },
-    'ACS':                { score: 3.74, reviews: 13140 },
-    'SPEEDEX':            { score: 3.29, reviews: 1748  },
-    'Γενική Ταχυδρομική': { score: 2.60, reviews: 5080  },
-    'ΕΛΤΑ Courier':       { score: 2.39, reviews: 5306  },
-  },
-  'ΚΡΗΤΗ': {
-    'Courier Center':     { score: 3.75, reviews: 3554  },
-    'ACS':                { score: 3.72, reviews: 13652 },
-    'ΕΛΤΑ Courier':       { score: 2.58, reviews: 3983  },
-    'SPEEDEX':            { score: 2.33, reviews: 4085  },
-    'Γενική Ταχυδρομική': { score: 2.09, reviews: 6127  },
-  },
-  'Υπόλοιπα νησιά': {
-    'Courier Center':     { score: 3.82, reviews: 2194  },
-    'ACS':                { score: 3.23, reviews: 16520 },
-    'SPEEDEX':            { score: 3.20, reviews: 2970  },
-    'Γενική Ταχυδρομική': { score: 3.02, reviews: 5317  },
-    'ΕΛΤΑ Courier':       { score: 2.86, reviews: 3384  },
-  },
-};
-
-// ── i18n ──────────────────────────────────────────────────────────────
-const T = {
-  el: {
-    badge: 'Επίσημη Αξιολόγηση Google · Ενημερώνεται κάθε Κυριακή',
-    h1a: 'Η εξυπηρέτηση του πελάτη ', h1b: 'στο επίκεντρο', h1c: ' — και τα νούμερα το αποδεικνύουν',
-    heroSub: 'Συνεχής πρόοδος, πραγματικές κριτικές, ξεκάθαρος στόχος: να γίνουμε η καλύτερη εμπειρία courier στην Ελλάδα.',
-    statScore: 'Weighted Avg', statReviews: 'Κριτικές Google', statRank: 'Στην αγορά', statGrowth: 'Άνοδος 2026',
-    rankTag: 'Κατάταξη', rankTitle: 'Σύγκριση αγοράς — Weighted Average Rating',
-    rankSub: 'Βασισμένη στον αριθμό κριτικών κάθε καταστήματος · Δεδομένα: 09/05/2026',
-    trendTag: 'Τάση', trendTitle: 'Εξέλιξη Weighted Average — Ιαν. 2026 έως σήμερα',
-    trendSub: 'Επίλεξε εταιρίες για σύγκριση',
-    regionTag: 'Ανά περιοχή', regionTitle: 'Courier Center — Αποτελέσματα ανά περιοχή',
-    regionSub: 'Weighted Average Rating σε κάθε γεωγραφική περιοχή',
-    regionRankLabel: (rank) => `#${rank} στην περιοχή`,
-      <div class="rank-info">
-        <div class="rank-score" style="${rank===1?'':'color:var(--text-primary)'}">${d.score.toFixed(2)}</div>
-        <div class="rank-stars">${stars(d.score)}</div>
-        <div class="rank-meta">${t.reviewsLabel(d.reviews)}</div>
-      </div>
-      <span class="rank-badge ${badgeCls}">${badgeTxt}</span>
-    </div>`;
-  }).join('');
-}
-
-// ── TREND CHART ───────────────────────────────────────────────────────
-let trendChart = null;
-let activeBrands = new Set(['cc']);
-
-function renderChart() {
-  const labels = SNAPSHOTS.map(s => s.label);
-  const datasets = BRANDS5.filter(b => activeBrands.has(b.id)).map(b => ({
-    label: b.name,
-    data: SNAPSHOTS.map(s => s.data[b.id]),
-    borderColor: b.color,
-    backgroundColor: b.color + '18',
-    borderWidth: b.id === 'cc' ? 3 : 1.5,
-    pointRadius: 4,
-    tension: 0.3,
-    spanGaps: true,
-  }));
-  if (trendChart) trendChart.destroy();
-  trendChart = new Chart(document.getElementById('trend-chart'), {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}` },
-          itemSort: (a, b) => b.raw - a.raw,
-        },
-      },
-      scales: {
-        y: {
-          min: ctx => {
-            const vals = ctx.chart.data.datasets.flatMap(d => d.data).filter(v => v != null);
-            return vals.length ? Math.floor((Math.min(...vals) - 0.2) * 10) / 10 : 2;
-          },
-          max: ctx => {
-            const vals = ctx.chart.data.datasets.flatMap(d => d.data).filter(v => v != null);
-            return vals.length ? Math.ceil((Math.max(...vals) + 0.2) * 10) / 10 : 5;
-          },
-          ticks: { stepSize: 0.1, font: { size: 11 } },
-        },
-        x: { ticks: { font: { size: 11 } } },
-      },
-    },
-  });
-}
-
-function renderChartFilters() {
-  const filters = document.getElementById('chart-filters');
-  filters.innerHTML = BRANDS5.map(b => `
-    <button class="chart-btn ${activeBrands.has(b.id) ? 'active' : ''}"
-      style="border-color:${b.color};${activeBrands.has(b.id) ? `background:${b.color}` : `color:${b.color}`}"
-      onclick="toggleBrand('${b.id}')">${b.name}</button>
-  `).join('');
-}
-
-function toggleBrand(id) {
-  if (activeBrands.has(id) && activeBrands.size === 1) return;
-  activeBrands.has(id) ? activeBrands.delete(id) : activeBrands.add(id);
-  renderChartFilters();
-  renderChart();
-}
-
-// ── REGIONS ───────────────────────────────────────────────────────────
-function renderRegions() {
-  const t = T[lang];
-  const BRAND_COLORS_MAP = {
-    'Courier Center': '#F47920', 'ACS': '#CC0000', 'SPEEDEX': '#00A650',
-    'ΕΛΤΑ Courier': '#C8102E', 'Γενική Ταχυδρομική': '#003DA5',
-  };
-  const BRAND_LOGOS_MAP = {
-    'Courier Center': 'logos/courier_center.png', 'ACS': 'logos/acs.png',
-    'SPEEDEX': 'logos/speedex.png', 'ΕΛΤΑ Courier': 'logos/elta_courier.png',
-    'Γενική Ταχυδρομική': 'logos/geniki.png',
-  };
-  const REGION_ORDER = ['ΑΤΤΙΚΗ','Κεντρική Ελλάδα','Θεσσαλονίκη','Βόρεια Ελλάδα',
-    'Δυτική Ελλάδα (με Κέρκυρα)','Πελοπόννησος','ΚΡΗΤΗ','Υπόλοιπα νησιά'];
-
-  document.getElementById('regions-grid').innerHTML = REGION_ORDER.map(regionKey => {
-    const regionName = lang === 'en' ? REGION_NAMES[regionKey].en : regionKey;
-    const brands = REGION_DATA[regionKey];
-    const sorted = Object.entries(brands).sort((a,b) => b[1].score - a[1].score);
-    const rows = sorted.map(([brand, d], i) => {
-      const isCC = brand === 'Courier Center';
-      const reviewsTxt = t.reviewsLabel(d.reviews);
-      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:${i < sorted.length-1 ? '1px solid var(--border)' : 'none'}">
-        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:${i===0?'var(--cc-orange)':'var(--border)'};min-width:22px;text-align:center">${i+1}</div>
-        <img src="${BRAND_LOGOS_MAP[brand]}" style="height:22px;width:60px;object-fit:contain;flex-shrink:0" alt="${brand}">
-        <div style="flex:1">
-          <div style="font-size:${isCC?'15px':'13px'};font-weight:${isCC?'700':'400'};color:${isCC?'var(--cc-orange)':'var(--text-primary)'}">${d.score.toFixed(2)}</div>
-          <div style="font-size:11px;color:var(--text-muted)">${reviewsTxt}</div>
-        </div>
-        ${isCC ? '<div style="font-size:11px;font-weight:600;color:var(--cc-orange);white-space:nowrap">✓ #1</div>' : ''}
-      </div>`;
-    }).join('');
-
-    return `<div class="region-card">
-      <div class="region-name">${regionName}</div>
-      ${rows}
-    </div>`;
-  }).join('');
-}
-
-// ── i18n APPLY ────────────────────────────────────────────────────────
-function applyLang(l) {
-  lang = l;
-  const t = T[l];
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (t[key] !== undefined) el.textContent = t[key];
-  });
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent === (l === 'el' ? 'ΕΛ' : 'EN'));
-  });
-  renderRanking();
-  renderRegions();
-  renderChartFilters();
-}
-
-function setLang(l) { applyLang(l); }
-
-// ── INIT ──────────────────────────────────────────────────────────────
-async function init() {
-  await loadHistory();
-  applyLang('el');
-  renderChartFilters();
-  renderChart();
-}
 init();
-applyLang('el');
-renderChartFilters();
-renderChart();
 </script>
 </body>
 </html>
