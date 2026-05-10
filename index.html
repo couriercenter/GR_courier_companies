@@ -150,7 +150,7 @@ footer a{color:var(--cc);text-decoration:none}
                 <th style="padding:10px 14px;text-align:left;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thRegionCol">Περιοχή</th>
                 <th style="padding:10px 14px;text-align:left;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5" data-i18n="thAddress">Διεύθυνση</th>
                 <th id="dth-rating" onclick="detailSort('rating')" style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5;cursor:pointer;user-select:none">Rating <span id="dth-rating-icon">↕</span></th>
-                <th id="dth-reviews" onclick="detailSort('reviews')" style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5;cursor:pointer;user-select:none" data-i18n="thReviews">Κριτικές <span id="dth-reviews-icon">↓</span></th>
+                <th id="dth-reviews" onclick="detailSort('reviews')" style="padding:10px 14px;text-align:right;position:sticky;top:57px;background:var(--dark);white-space:nowrap;z-index:5;cursor:pointer;user-select:none"><span id="dth-reviews-label">Κριτικές</span> <span id="dth-reviews-icon">↓</span></th>
                 <th style="padding:10px 14px;text-align:center;position:sticky;top:57px;background:var(--dark);z-index:5"></th>
               </tr>
             </thead>
@@ -276,6 +276,7 @@ function applyLang(l){
   document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.textContent===(l==='el'?'ΕΛ':'EN')));
   document.getElementById('nav-updated').textContent=t.updated+' '+LATEST_LABEL;
   const allOpt=document.getElementById('d-pagesize-all');if(allOpt)allOpt.textContent=t.allOpt||'Όλα';
+  const revLbl=document.getElementById('dth-reviews-label');if(revLbl)revLbl.textContent=t.thReviews||'Κριτικές';
   renderRanking();renderRegions();renderChartFilters();
 }
 function setLang(l){applyLang(l);}
@@ -323,6 +324,9 @@ function openDetail() {
   document.getElementById('detail-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
   detailPage = 1;
+  detailSortCol = 'reviews';
+  detailSortDir = -1;
+  updateSortIcons();
   renderDetail();
 }
 
@@ -398,11 +402,17 @@ function renderDetail() {
   }
 }
 
+function updateSortIcons() {
+  const ri = document.getElementById('dth-rating-icon');
+  const vi = document.getElementById('dth-reviews-icon');
+  if(ri) ri.textContent = detailSortCol==='rating'  ? (detailSortDir===1?'↑':'↓') : '↕';
+  if(vi) vi.textContent = detailSortCol==='reviews' ? (detailSortDir===1?'↑':'↓') : '↕';
+}
+
 function detailSort(col) {
   if(detailSortCol === col) { detailSortDir *= -1; }
   else { detailSortCol = col; detailSortDir = -1; }
-  document.getElementById('dth-rating-icon').textContent = detailSortCol==='rating' ? (detailSortDir===1?'↑':'↓') : '↕';
-  document.getElementById('dth-reviews-icon').textContent = detailSortCol==='reviews' ? (detailSortDir===1?'↑':'↓') : '↕';
+  updateSortIcons();
   detailPage = 1;
   renderDetail();
 }
