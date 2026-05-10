@@ -306,6 +306,10 @@ async function init(){
 }
 init();
 
+// Auto-detect lang from URL param
+const urlLang = new URLSearchParams(window.location.search).get('lang');
+if(urlLang === 'en') setLang('en');
+
 // ── DETAIL MODAL ──────────────────────────────────────────────────────
 let detailPage = 1;
 const DETAIL_PAGE_SIZE = 50;
