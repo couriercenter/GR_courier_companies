@@ -324,8 +324,12 @@ function openDetail() {
   document.getElementById('detail-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
   detailPage = 1;
-  detailSortCol = 'reviews';
+  detailSortCol = 'rating';
   detailSortDir = -1;
+  // Set brand filter to Courier Center
+  document.getElementById('d-brand').value = 'Courier Center';
+  document.getElementById('d-region').value = '';
+  document.getElementById('d-search').value = '';
   updateSortIcons();
   renderDetail();
 }
@@ -360,7 +364,7 @@ function renderDetail() {
   rows.sort((a,b) => {
     const va = detailSortCol==='rating' ? (a.rating||0) : (a.reviews||0);
     const vb = detailSortCol==='rating' ? (b.rating||0) : (b.reviews||0);
-    return (vb-va)*detailSortDir;
+    return (va-vb)*detailSortDir;
   });
 
   const total = rows.length;
